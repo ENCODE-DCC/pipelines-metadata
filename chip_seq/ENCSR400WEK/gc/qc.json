@@ -1,0 +1,231 @@
+{
+name: "ENCSR400WEK",
+desc: "POLR2AphosphoS5 ChIP-seq on human mammary gland",
+flagstat_qc: [
+{
+total: 81407708,
+total_qc_failed: 0,
+duplicates: 0,
+duplicates_qc_failed: 0,
+mapped: 75025140,
+mapped_qc_failed: 0,
+mapped_pct: 92.16,
+paired: 81407708,
+paired_qc_failed: 0,
+read1: 40703854,
+read1_qc_failed: 0,
+read2: 40703854,
+read2_qc_failed: 0,
+paired_properly: 71975097,
+paired_properly_qc_failed: 0,
+paired_properly_pct: 88.41,
+with_itself: 73651113,
+with_itself_qc_failed: 0,
+singletons: 1374027,
+singletons_qc_failed: 0,
+singletons_pct: 1.69,
+diff_chroms: 96134,
+diff_chroms_qc_failed: 0
+}
+],
+ctl_flagstat_qc: [
+{
+total: 121546546,
+total_qc_failed: 0,
+duplicates: 0,
+duplicates_qc_failed: 0,
+mapped: 102148203,
+mapped_qc_failed: 0,
+mapped_pct: 84.04,
+paired: 121546546,
+paired_qc_failed: 0,
+read1: 60773273,
+read1_qc_failed: 0,
+read2: 60773273,
+read2_qc_failed: 0,
+paired_properly: 93057735,
+paired_properly_qc_failed: 0,
+paired_properly_pct: 76.56,
+with_itself: 99707709,
+with_itself_qc_failed: 0,
+singletons: 2440494,
+singletons_qc_failed: 0,
+singletons_pct: 2.01,
+diff_chroms: 165136,
+diff_chroms_qc_failed: 0
+}
+],
+nodup_flagstat_qc: [
+{
+total: 58560142,
+total_qc_failed: 0,
+duplicates: 0,
+duplicates_qc_failed: 0,
+mapped: 58560142,
+mapped_qc_failed: 0,
+mapped_pct: 100,
+paired: 58560142,
+paired_qc_failed: 0,
+read1: 29280071,
+read1_qc_failed: 0,
+read2: 29280071,
+read2_qc_failed: 0,
+paired_properly: 58560142,
+paired_properly_qc_failed: 0,
+paired_properly_pct: 100,
+with_itself: 58560142,
+with_itself_qc_failed: 0,
+singletons: 0,
+singletons_qc_failed: 0,
+singletons_pct: 0,
+diff_chroms: 0,
+diff_chroms_qc_failed: 0
+}
+],
+ctl_nodup_flagstat_qc: [
+{
+total: 78581216,
+total_qc_failed: 0,
+duplicates: 0,
+duplicates_qc_failed: 0,
+mapped: 78581216,
+mapped_qc_failed: 0,
+mapped_pct: 100,
+paired: 78581216,
+paired_qc_failed: 0,
+read1: 39290608,
+read1_qc_failed: 0,
+read2: 39290608,
+read2_qc_failed: 0,
+paired_properly: 78581216,
+paired_properly_qc_failed: 0,
+paired_properly_pct: 100,
+with_itself: 78581216,
+with_itself_qc_failed: 0,
+singletons: 0,
+singletons_qc_failed: 0,
+singletons_pct: 0,
+diff_chroms: 0,
+diff_chroms_qc_failed: 0
+}
+],
+dup_qc: [
+{
+unpaired_reads: 0,
+paired_reads: 30901050,
+unmapped_reads: 0,
+unpaired_dupes: 0,
+paired_dupes: 1620979,
+paired_opt_dupes: 29765,
+dupes_pct: 0.052457
+}
+],
+ctl_dup_qc: [
+{
+unpaired_reads: 0,
+paired_reads: 40526157,
+unmapped_reads: 0,
+unpaired_dupes: 0,
+paired_dupes: 1235549,
+paired_opt_dupes: 44726,
+dupes_pct: 0.030488
+}
+],
+pbc_qc: [
+{
+total_read_pairs: 30880507,
+distinct_read_pairs: 29260911,
+one_read_pair: 27711997,
+two_read_pair: 1481402,
+NRF: 0.947553,
+PBC1: 0.947065,
+PBC2: 18.706602
+}
+],
+ctl_pbc_qc: [
+{
+total_read_pairs: 40069710,
+distinct_read_pairs: 38934692,
+one_read_pair: 37824597,
+two_read_pair: 1086507,
+NRF: 0.971674,
+PBC1: 0.971488,
+PBC2: 34.813027
+}
+],
+xcor_score: [
+{
+num_reads: 15000000,
+est_frag_len: 75,
+corr_est_frag_len: 0.222280058478927,
+phantom_peak: 50,
+corr_phantom_peak: 0.224776,
+argmin_corr: 1500,
+min_corr: 0.1677015,
+NSC: 1.325451,
+RSC: 0.956268
+}
+],
+jsd_qc: [
+{
+pct_gen_enrich: 0.219759993526,
+auc: 0.494704180258,
+ch_div: 0.152641827807,
+elbow_pt: 3.28026822571e-306,
+jsd: 0.648433376517,
+syn_auc: 0.495462245372,
+syn_elbow_pt: 0.227219292687,
+syn_jsd: 0.37259597604
+}
+],
+frip_macs2_qc: {
+rep1: {
+FRiP: 0.297661853385
+}
+},
+frip_spp_qc: {
+rep1: {
+FRiP: 0.266792189074
+},
+rep1-pr1: {
+FRiP: 0.274612151528
+},
+rep1-pr2: {
+FRiP: 0.274083512782
+}
+},
+overlap_reproducibility_qc: {
+Nt: 0,
+N1: 113533,
+Np: 0,
+N_opt: 113533,
+N_consv: 113533,
+opt_set: "rep1-pr",
+consv_set: "rep1-pr",
+rescue_ratio: 0,
+self_consistency_ratio: 1,
+reproducibility: "pass"
+},
+idr_reproducibility_qc: {
+Nt: 0,
+N1: 35786,
+Np: 0,
+N_opt: 35786,
+N_consv: 35786,
+opt_set: "rep1-pr",
+consv_set: "rep1-pr",
+rescue_ratio: 0,
+self_consistency_ratio: 1,
+reproducibility: "pass"
+},
+overlap_frip_qc: {
+rep1-pr: {
+FRiP: 0.17735362033
+}
+},
+idr_frip_qc: {
+rep1-pr: {
+FRiP: 0.110565098264
+}
+}
+}
