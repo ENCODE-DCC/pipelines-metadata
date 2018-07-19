@@ -1,0 +1,20 @@
+{
+    "chip.pipeline_type": "tf",
+    "chip.genome_tsv": "gs://encode-pipeline-genome-data/hg38_google.tsv",
+    "chip.fastqs": [
+        [[
+            "gs://chip-seq-pipeline-test-samples/ENCSR400WEK/ENCFF251IZE.fastq.gz",
+            "gs://chip-seq-pipeline-test-samples/ENCSR400WEK/ENCFF871SZT.fastq.gz"
+        ]]
+    ],
+    "chip.ctl_fastqs": [
+        [[
+            "gs://chip-seq-pipeline-test-samples/ENCSR237CQV/ENCFF094LCI.fastq.gz",
+            "gs://chip-seq-pipeline-test-samples/ENCSR237CQV/ENCFF818HXE.fastq.gz"
+        ]]
+    ],
+    "chip.paired_end" : true,
+    "chip.choose_ctl.always_use_pooled_ctl" : true,
+    "chip.qc_report.name" : "ENCSR400WEK",
+    "chip.qc_report.desc" : "POLR2AphosphoS5 ChIP-seq on human mammary gland"
+}
