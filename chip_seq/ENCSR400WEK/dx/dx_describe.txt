@@ -1,0 +1,1779 @@
+DN525uvl:~ keenan$ dx describe analysis-FJ77X0j0F4ZyY7q4P5qj11vj
+Result 1:
+ID                  analysis-FJ77X0j0F4ZyY7q4P5qj11vj
+Class               analysis
+Job name            chip
+Executable name     chip
+Project context     project-FJ4V1Kj0F4ZfqgJvGg9fz8Gg
+Billed to           org-cherrylab
+Workspace           container-FJ77X0j0F4ZyY7q4P5qj11vk
+Workflow            workflow-FJ77Qf80F4Zxj6fvP79y67Yp
+Priority            high
+State               done
+Root execution      analysis-FJ77X0j0F4ZyY7q4P5qj11vj
+Parent job          -
+Stage 0             common (stage-0)
+  Executable        applet-FJ77PB00F4ZQBQvv5P1J5k19
+  Execution         job-FJ77X100F4ZyY7q4P5qj11vq (done)
+Stage 1             read_genome_tsv (stage-1)
+  Executable        applet-FJ77PK00F4ZZ82F15Kffx6KJ
+  Execution         job-FJ77X100F4ZyY7q4P5qj11vv (done)
+Stage 2             scatter (fastq_set in fastqs_) (stage-2)
+  Executable        applet-FJ77PX80F4ZYky702YyJbzYJ
+  Execution         job-FJ77X100F4ZyY7q4P5qj11vx (done)
+Stage 3             scatter (fastq_set in fastqs_xcor) (stage-3)
+  Executable        applet-FJ77PJ00F4ZqzVjb5Pbxq2V4
+  Execution         job-FJ77X180F4ZyY7q4P5qj11vy (done)
+Stage 4             scatter (fastq_set in trimmed_fastqs_R1) (stage-4)
+  Executable        applet-FJ77PXQ0F4ZfxYQj2X5y9171
+  Execution         job-FJ77X180F4ZyY7q4P5qj11vz (done)
+Stage 5             scatter (bam in bams_) (stage-5)
+  Executable        applet-FJ77PXj0F4Zzj91Z2YJXgPP9
+  Execution         job-FJ77X180F4ZyY7q4P5qj11x0 (done)
+Stage 6             scatter (bam in nodup_bams_) (stage-6)
+  Executable        applet-FJ77PJ00F4ZZ82F15Kffx6K9
+  Execution         job-FJ77X180F4ZyY7q4P5qj11x1 (done)
+Stage 7             scatter (ta in tas_xcor) (stage-7)
+  Executable        applet-FJ77PJj0F4ZQBQvv5P1J5k1P
+  Execution         job-FJ77X180F4ZyY7q4P5qj11x2 (done)
+Stage 8             if (length(tas_) > 1) (stage-8)
+  Executable        applet-FJ77PQ00F4ZzG9512YYVjf4F
+  Execution         job-FJ77X180F4ZyY7q4P5qj11x3 (done)
+Stage 9             if (!true_rep_only) (stage-9)
+  Executable        applet-FJ77PQj0F4Zzj91Z2YJXgPP5
+  Execution         job-FJ77X180F4ZyY7q4P5qj11x4 (done)
+Stage 10            if (!true_rep_only && length(tas_) > 1) (stage-10)
+  Executable        applet-FJ77PVQ0F4ZvZZGK2X98pZqx
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11x5 (done)
+Stage 11            scatter (fastq_set in ctl_fastqs_) (stage-11)
+  Executable        applet-FJ77PXj0F4ZYXFbx2XQ8ffX3
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11x6 (done)
+Stage 12            scatter (bam in ctl_bams_) (stage-12)
+  Executable        applet-FJ77PJ80F4ZpV12g5QJzFp6G
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11x7 (done)
+Stage 13            scatter (bam in ctl_nodup_bams_) (stage-13)
+  Executable        applet-FJ77PGQ0F4ZqzVjb5Pbxq2V2
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11x8 (done)
+Stage 14            if (length(ctl_tas_) > 0) (stage-14)
+  Executable        applet-FJ77PKj0F4Zfx62G5PJbvby8
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11x9 (done)
+Stage 15            if (!no_jsd && length(nodup_bams_) > 0 && length(ctl_nodup_bams_) > 0 &&
+                    basename(blacklist) != "null") (stage-15)
+  Executable        applet-FJ77PV00F4ZYky702YyJbzYF
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11xB (done)
+Stage 16            if (length(tas_) > 0 && length(ctl_tas_) > 0) (stage-16)
+  Executable        applet-FJ77PV80F4ZgG1Zx2Y1j1q9v
+  Execution         job-FJ77X1Q0F4ZyY7q4P5qj11xF (done)
+Stage 17            scatter (i in range(length(tas_))) (stage-17)
+  Executable        applet-FJ77PKQ0F4ZQBQvv5P1J5k1V
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xG (done)
+Stage 18            if (peak_caller_ == "spp") (stage-18)
+  Executable        applet-FJ77PG80F4Zp95yq5Q3bpxzz
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xJ (done)
+Stage 19            if (peak_caller_ == "macs2") (stage-19)
+  Executable        applet-FJ77PYQ0F4ZgG1Zx2Y1j1q9y
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xK (done)
+Stage 20            if (peak_caller_ == "spp") (stage-20)
+  Executable        applet-FJ77PY80F4ZYky702YyJbzYP
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xP (done)
+Stage 21            fraglen_mean (stage-21)
+  Executable        applet-FJ77P9j0F4Zy1VP15PzzBB36
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xQ (done)
+Stage 22            if (length(tas_) > 1) (stage-22)
+  Executable        applet-FJ77PQ00F4ZgG1Zx2Y1j1q9j
+  Execution         job-FJ77X1j0F4ZyY7q4P5qj11xV (done)
+Stage 23            if (length(tas_) > 1 && peak_caller_ == "spp") (stage-23)
+  Executable        applet-FJ77PK80F4ZqzVjb5Pbxq2VB
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xX (done)
+Stage 24            if (!true_rep_only && length(tas_) > 1 && peak_caller_ == "macs2") (stage-24)
+  Executable        applet-FJ77PY80F4ZYky702YyJbzYV
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xY (done)
+Stage 25            if (!true_rep_only && length(tas_) > 1 && peak_caller_ == "spp") (stage-25)
+  Executable        applet-FJ77PYQ0F4ZxVZg32XgP876y
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xZ (done)
+Stage 26            scatter (pair in peak_pairs) (stage-26)
+  Executable        applet-FJ77PPQ0F4ZqK5x85KpBG4BG
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xb (done)
+Stage 27            if (enable_idr) (stage-27)
+  Executable        applet-FJ77PGQ0F4ZqK5x85KpBG4B6
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xf (done)
+Stage 28            scatter (i in range(length(peaks_pr1_))) (stage-28)
+  Executable        applet-FJ77PQj0F4ZYXFbx2XQ8ffVz
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xg (done)
+Stage 29            if (enable_idr) (stage-29)
+  Executable        applet-FJ77PK80F4ZZ82F15Kffx6KP
+  Execution         job-FJ77X200F4ZyY7q4P5qj11xj (done)
+Stage 30            if (length(peaks_pr1_) > 1) (stage-30)
+  Executable        applet-FJ77PJQ0F4Zp95yq5Q3bpy01
+  Execution         job-FJ77X280F4ZyY7q4P5qj11xk (done)
+Stage 31            if (enable_idr && length(peaks_pr1_) > 1) (stage-31)
+  Executable        applet-FJ77PJ80F4ZqzVjb5Pbxq2V6
+  Execution         job-FJ77X280F4ZyY7q4P5qj11xp (done)
+Stage 32            if (!align_only && !true_rep_only) (stage-32)
+  Executable        applet-FJ77PV00F4ZYXFbx2XQ8ffX1
+  Execution         job-FJ77X280F4ZyY7q4P5qj11xq (done)
+Stage 33            if (!align_only && !true_rep_only && enable_idr) (stage-33)
+  Executable        applet-FJ77PQQ0F4ZzG9512YYVjf4J
+  Execution         job-FJ77X2Q0F4ZyY7q4P5qj11xv (done)
+Stage 34            qc_report (stage-34)
+  Executable        applet-FJ77PP80F4Zfx62G5PJbvbyB
+  Execution         job-FJ77X2Q0F4ZyY7q4P5qj11xx (done)
+Stage 35            outputs (stage-last)
+  Executable        applet-FJ77PBQ0F4ZZ82F15Kffx6K5
+  Execution         job-FJ77X2Q0F4ZyY7q4P5qj11xy (done)
+Input               stage-23.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-3.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-2.read_genome_tsv_genome = {"$dnanexus_link": {"outputField":
+                     "read_genome_tsv_genome", "stage": "stage-1"}}
+                    stage-25.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-17.ctl_tas_ = {"$dnanexus_link": {"outputField": "ctl_tas_", "stage":
+                     "stage-14"}}
+                    stage-23.spp_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "spp_cap_num_peak", "stage": "stage-0"}}
+                    stage-27.idr_rank = {"$dnanexus_link": {"outputField": "idr_rank", "stage":
+                     "stage-1"}}
+                    stage-25.spp_mem_mb = {"$dnanexus_link": {"outputField": "spp_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-15.no_jsd = {"$dnanexus_link": {"outputField": "no_jsd", "stage":
+                     "stage-0"}}
+                    stage-22.macs2_mem_mb = {"$dnanexus_link": {"outputField": "macs2_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-17.macs2_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "macs2_cap_num_peak", "stage": "stage-0"}}
+                    stage-9.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-18.fraglen_ = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-17.gensz = {"$dnanexus_link": {"outputField": "gensz", "stage":
+                     "stage-2"}}
+                    stage-24.macs2_time_hr = {"$dnanexus_link": {"outputField": "macs2_time_hr",
+                     "stage": "stage-0"}}
+                    stage-11.ctl_fastqs = {"$dnanexus_link": {"outputField": "ctl_fastqs",
+                     "stage": "stage-0"}}
+                    stage-1.peak_caller = {"$dnanexus_link": {"outputField": "peak_caller",
+                     "stage": "stage-0"}}
+                    stage-27.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-last.read_genome_tsv_genome = {"$dnanexus_link": {"outputField":
+                     "read_genome_tsv_genome", "stage": "stage-1"}}
+                    stage-26.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-24.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-19.fraglen_ = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-last.xcor_fraglen = {"$dnanexus_link": {"outputField": "xcor_fraglen",
+                     "stage": "stage-7"}}
+                    stage-20.spp_cpu = {"$dnanexus_link": {"outputField": "spp_cpu", "stage":
+                     "stage-0"}}
+                    stage-23.spp_disks = {"$dnanexus_link": {"outputField": "spp_disks", "stage":
+                     "stage-0"}}
+                    stage-32.align_only = {"$dnanexus_link": {"outputField": "align_only",
+                     "stage": "stage-0"}}
+                    stage-19.pval_thresh = {"$dnanexus_link": {"outputField": "pval_thresh",
+                     "stage": "stage-0"}}
+                    stage-18.spp_mem_mb = {"$dnanexus_link": {"outputField": "spp_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-24.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-29.idr_rank = {"$dnanexus_link": {"outputField": "idr_rank", "stage":
+                     "stage-1"}}
+                    stage-17.pval_thresh = {"$dnanexus_link": {"outputField": "pval_thresh",
+                     "stage": "stage-0"}}
+                    stage-24.macs2_mem_mb = {"$dnanexus_link": {"outputField": "macs2_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-19.macs2_time_hr = {"$dnanexus_link": {"outputField": "macs2_time_hr",
+                     "stage": "stage-0"}}
+                    stage-11.paired_end = {"$dnanexus_link": {"outputField": "paired_end",
+                     "stage": "stage-0"}}
+                    stage-19.gensz = {"$dnanexus_link": {"outputField": "gensz", "stage":
+                     "stage-2"}}
+                    stage-5.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-0.pipeline_type = "tf"
+                    stage-23.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-22.pval_thresh = {"$dnanexus_link": {"outputField": "pval_thresh",
+                     "stage": "stage-0"}}
+                    stage-34.pipeline_type = {"$dnanexus_link": {"outputField": "pipeline_type",
+                     "stage": "stage-0"}}
+                    stage-12.paired_end = {"$dnanexus_link": {"outputField": "paired_end",
+                     "stage": "stage-0"}}
+                    stage-18.spp_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "spp_cap_num_peak", "stage": "stage-0"}}
+                    stage-last.chip__scatter_fastq_set_body2_merged_fastqs = {"$dnanexus_link":
+                     {"outputField": "chip__scatter_fastq_set_body2_merged_fastqs", "stage":
+                     "stage-11"}}
+                    stage-32.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-0.fastqs = { value: [ [ [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-19.macs2_mem_mb = {"$dnanexus_link": {"outputField": "macs2_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-29.fraglen_ = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-0.ctl_fastqs = { value: [ [ [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-19.macs2_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "macs2_cap_num_peak", "stage": "stage-0"}}
+                    stage-30.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-29.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-33.align_only = {"$dnanexus_link": {"outputField": "align_only",
+                     "stage": "stage-0"}}
+                    stage-28.fraglen_ = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-25.spp_cpu = {"$dnanexus_link": {"outputField": "spp_cpu", "stage":
+                     "stage-0"}}
+                    stage-25.spp_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "spp_cap_num_peak", "stage": "stage-0"}}
+                    stage-34.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-18.chosen_ctl_tas = {"$dnanexus_link": {"outputField": "chosen_ctl_tas",
+                     "stage": "stage-17"}}
+                    stage-24.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-8.align_only = {"$dnanexus_link": {"outputField": "align_only", "stage":
+                     "stage-0"}}
+                    stage-27.enable_idr = {"$dnanexus_link": {"outputField": "enable_idr",
+                     "stage": "stage-1"}}
+                    stage-24.gensz = {"$dnanexus_link": {"outputField": "gensz", "stage":
+                     "stage-2"}}
+                    stage-18.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-20.spp_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "spp_cap_num_peak", "stage": "stage-0"}}
+                    stage-27.idr_thresh = {"$dnanexus_link": {"outputField": "idr_thresh",
+                     "stage": "stage-0"}}
+                    stage-27.peak_pairs = {"$dnanexus_link": {"outputField": "peak_pairs",
+                     "stage": "stage-26"}}
+                    stage-31.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-27.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-18.spp_disks = {"$dnanexus_link": {"outputField": "spp_disks", "stage":
+                     "stage-0"}}
+                    stage-24.pval_thresh = {"$dnanexus_link": {"outputField": "pval_thresh",
+                     "stage": "stage-0"}}
+                    stage-10.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-22.gensz = {"$dnanexus_link": {"outputField": "gensz", "stage":
+                     "stage-2"}}
+                    stage-24.macs2_disks = {"$dnanexus_link": {"outputField": "macs2_disks",
+                     "stage": "stage-0"}}
+                    stage-31.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-last.chip__scatter_fastq_set_body_merged_fastqs = {"$dnanexus_link":
+                     {"outputField": "chip__scatter_fastq_set_body_merged_fastqs", "stage":
+                     "stage-2"}}
+                    stage-7.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-16.ctl_tas_ = {"$dnanexus_link": {"outputField": "ctl_tas_", "stage":
+                     "stage-14"}}
+                    stage-14.align_only = {"$dnanexus_link": {"outputField": "align_only",
+                     "stage": "stage-0"}}
+                    stage-22.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-last.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-1.pipeline_type = {"$dnanexus_link": {"outputField": "pipeline_type",
+                     "stage": "stage-0"}}
+                    stage-25.spp_time_hr = {"$dnanexus_link": {"outputField": "spp_time_hr",
+                     "stage": "stage-0"}}
+                    stage-2.fastqs = {"$dnanexus_link": {"outputField": "fastqs", "stage":
+                     "stage-0"}}
+                    stage-17.macs2_mem_mb = {"$dnanexus_link": {"outputField": "macs2_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-17.macs2_time_hr = {"$dnanexus_link": {"outputField": "macs2_time_hr",
+                     "stage": "stage-0"}}
+                    stage-20.spp_disks = {"$dnanexus_link": {"outputField": "spp_disks", "stage":
+                     "stage-0"}}
+                    stage-19.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-22.macs2_disks = {"$dnanexus_link": {"outputField": "macs2_disks",
+                     "stage": "stage-0"}}
+                    stage-29.enable_idr = {"$dnanexus_link": {"outputField": "enable_idr",
+                     "stage": "stage-1"}}
+                    stage-6.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-24.macs2_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "macs2_cap_num_peak", "stage": "stage-0"}}
+                    stage-23.spp_time_hr = {"$dnanexus_link": {"outputField": "spp_time_hr",
+                     "stage": "stage-0"}}
+                    stage-17.align_only = {"$dnanexus_link": {"outputField": "align_only",
+                     "stage": "stage-0"}}
+                    stage-25.spp_disks = {"$dnanexus_link": {"outputField": "spp_disks", "stage":
+                     "stage-0"}}
+                    stage-30.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-22.macs2_time_hr = {"$dnanexus_link": {"outputField": "macs2_time_hr",
+                     "stage": "stage-0"}}
+                    stage-9.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-34.idr_thresh = {"$dnanexus_link": {"outputField": "idr_thresh",
+                     "stage": "stage-0"}}
+                    stage-18.spp_cpu = {"$dnanexus_link": {"outputField": "spp_cpu", "stage":
+                     "stage-0"}}
+                    stage-17.macs2_disks = {"$dnanexus_link": {"outputField": "macs2_disks",
+                     "stage": "stage-0"}}
+                    stage-20.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-31.idr_rank = {"$dnanexus_link": {"outputField": "idr_rank", "stage":
+                     "stage-1"}}
+                    stage-33.true_rep_only = {"$dnanexus_link": {"outputField": "true_rep_only",
+                     "stage": "stage-0"}}
+                    stage-20.spp_time_hr = {"$dnanexus_link": {"outputField": "spp_time_hr",
+                     "stage": "stage-0"}}
+                    stage-25.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-17.fraglen = {"$dnanexus_link": {"outputField": "fraglen", "stage":
+                     "stage-0"}}
+                    stage-21.ints = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-13.paired_end = {"$dnanexus_link": {"outputField": "paired_end",
+                     "stage": "stage-0"}}
+                    stage-0.paired_end = true
+                    stage-3.chip__scatter_fastq_set_body_merged_fastqs = {"$dnanexus_link":
+                     {"outputField": "chip__scatter_fastq_set_body_merged_fastqs", "stage":
+                     "stage-2"}}
+                    stage-22.ctl_tas_ = {"$dnanexus_link": {"outputField": "ctl_tas_", "stage":
+                     "stage-14"}}
+                    stage-34.paired_end = {"$dnanexus_link": {"outputField": "paired_end",
+                     "stage": "stage-0"}}
+                    stage-20.chosen_ctl_tas = {"$dnanexus_link": {"outputField": "chosen_ctl_tas",
+                     "stage": "stage-17"}}
+                    stage-31.idr_thresh = {"$dnanexus_link": {"outputField": "idr_thresh",
+                     "stage": "stage-0"}}
+                    stage-20.spp_mem_mb = {"$dnanexus_link": {"outputField": "spp_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-25.peak_caller_ = {"$dnanexus_link": {"outputField": "peak_caller_",
+                     "stage": "stage-1"}}
+                    stage-2.paired_end = {"$dnanexus_link": {"outputField": "paired_end", "stage":
+                     "stage-0"}}
+                    stage-26.fraglen_mean_rounded_mean = {"$dnanexus_link": {"outputField":
+                     "rounded_mean", "stage": "stage-21"}}
+                    stage-18.spp_time_hr = {"$dnanexus_link": {"outputField": "spp_time_hr",
+                     "stage": "stage-0"}}
+                    stage-20.fraglen_ = {"$dnanexus_link": {"outputField": "fraglen_", "stage":
+                     "stage-17"}}
+                    stage-23.spp_mem_mb = {"$dnanexus_link": {"outputField": "spp_mem_mb",
+                     "stage": "stage-0"}}
+                    stage-last.qc_report_qc_json_match = {"$dnanexus_link": {"outputField":
+                     "qc_report_qc_json_match", "stage": "stage-34"}}
+                    stage-26.align_only = {"$dnanexus_link": {"outputField": "align_only",
+                     "stage": "stage-0"}}
+                    stage-19.chosen_ctl_tas = {"$dnanexus_link": {"outputField": "chosen_ctl_tas",
+                     "stage": "stage-17"}}
+                    stage-23.spp_cpu = {"$dnanexus_link": {"outputField": "spp_cpu", "stage":
+                     "stage-0"}}
+                    stage-28.peak_type = {"$dnanexus_link": {"outputField": "peak_type", "stage":
+                     "stage-1"}}
+                    stage-17.xcor_fraglen = {"$dnanexus_link": {"outputField": "xcor_fraglen",
+                     "stage": "stage-7"}}
+                    stage-19.macs2_disks = {"$dnanexus_link": {"outputField": "macs2_disks",
+                     "stage": "stage-0"}}
+                    stage-31.enable_idr = {"$dnanexus_link": {"outputField": "enable_idr",
+                     "stage": "stage-1"}}
+                    stage-22.macs2_cap_num_peak = {"$dnanexus_link": {"outputField":
+                     "macs2_cap_num_peak", "stage": "stage-0"}}
+                    stage-33.enable_idr = {"$dnanexus_link": {"outputField": "enable_idr",
+                     "stage": "stage-1"}}
+                    stage-29.idr_thresh = {"$dnanexus_link": {"outputField": "idr_thresh",
+                     "stage": "stage-0"}}
+                    [stage-last.chip__scatter_i_body1_bfilt_rpeak1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body1_bfilt_rpeak1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-4.trim_fastq_trimmed_fastq = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "trim_fastq_trimmed_fastq", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-3"}}]
+                    [stage-last.idr_idr_plot = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-31.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.overlap_ppr_bfilt_overlap_peak_bb = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "overlap_ppr_bfilt_overlap_peak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-27.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-10.spr_ta_pr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-last.chip__true_rep_only_length_tas__body_ta_pooled1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-28.chip__scatter_i_body_npeak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-23.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__scatter_i_body1_rpeak1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_rpeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-34.chip__scatter_fastq_set_body2_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body2_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-19.spr_ta_pr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-last.spp_pooled_bfilt_rpeak_peak_bb = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "spp_pooled_bfilt_rpeak_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-23"}}]
+                    [stage-last.fingerprint_jsd_qcs = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "fingerprint_jsd_qcs", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-15"}}]
+                    [stage-25.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-29.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.overlap_pr_overlap_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_pr_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-last.filter_ctl_dup_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_dup_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-25.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-29.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-2.fastqs___dxfiles = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs___dxfiles", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-19.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-30.peak_ppr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_ppr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-34.chip__scatter_i_body1_frip_qc1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-last.chip__true_rep_only_length_tas__body_ta_pooled =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-last.chip__scatter_bam_body_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_bam_body_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-last.xcor_plot_pdf = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "xcor_plot_pdf", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-7"}}]
+                    [stage-last.reproducibility_idr_reproducibility_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "reproducibility_idr_reproducibility_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-33"}}]
+                    [stage-last.chip__scatter_fastq_set_body1_bam = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body1_bam",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-4"}}]
+                    [stage-last.macs2_pooled_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-31.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-11.ctl_fastqs_rep4_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep4_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-28.peaks_pr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-28.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-30.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-34.overlap_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "overlap_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-26"}}]
+                    [stage-34.chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-26.macs2_npeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_npeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-last.trim_fastq_trimmed_fastq = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "trim_fastq_trimmed_fastq", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-3"}}]
+                    [stage-18.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.idr_idr_unthresholded_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "idr_idr_unthresholded_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-27"}}]
+                    [stage-last.filter_ctl_nodup_bai = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_nodup_bai", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-last.qc_report_qc_json = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "qc_report_qc_json", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-34"}}]
+                    [stage-34.reproducibility_overlap_reproducibility_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "reproducibility_overlap_reproducibility_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-32"}}]
+                    [stage-27.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-7.chip__scatter_bam_body_ta = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chip__scatter_bam_body_ta", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-last.spp_pooled_bfilt_rpeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_pooled_bfilt_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-23"}}]
+                    [stage-last.chip__scatter_fastq_set_body1_bai = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body1_bai",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-4"}}]
+                    [stage-last.chip__scatter_i_body_frip_qc1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.bam2ta_ta = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bam2ta_ta", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-6"}}]
+                    [stage-last.idr_pr_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_pr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-29"}}]
+                    [stage-18.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-32.overlap_ppr_bfilt_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_ppr_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-34.chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-11.ctl_fastqs_rep3_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep3_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-11.ctl_fastqs_rep2_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep2_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-20.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-18.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__scatter_i_body_bfilt_npeak1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body_bfilt_npeak1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-24.chosen_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-11.ctl_fastqs_rep6_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep6_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.idr_idr_log = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_idr_log", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-26.macs2_pooled_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.chip__scatter_i_body1_frip_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-11.ctl_fastqs_rep1_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep1_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-34.filter_ctl_pbc_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_pbc_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-last.chip__scatter_fastq_set_body2_bai = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body2_bai",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-29.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__scatter_fastq_set_body1_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body1_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-4"}}]
+                    [stage-2.fastqs_rep6_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep6_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-30.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-7.tas = {"$dnanexus_link": {"wasInternal": true, "field": "tas",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.idr_pr_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_pr_idr_peak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-29"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_pval1
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_pval1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.chip__scatter_i_body_npeak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.chip__scatter_fastq_set_body1_ta = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body1_ta",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-4"}}]
+                    [stage-last.idr_ppr_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-31"}}]
+                    [stage-14.bam2ta_ctl_ta = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bam2ta_ctl_ta", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-13"}}]
+                    [stage-34.idr_ppr_idr_plot = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_ppr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-31"}}]
+                    [stage-24.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-34.chip__scatter_i_body1_frip_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-11.bwa_idx_tar = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bwa_idx_tar", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.idr_ppr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-31"}}]
+                    [stage-2.fastqs_rep4_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep4_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-26.spp_pooled_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_pooled_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-23"}}]
+                    [stage-last.qc_report_report = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "qc_report_report", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-34"}}]
+                    [stage-last.overlap_overlap_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-last.macs2_pooled_bfilt_npeak_bb = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "macs2_pooled_bfilt_npeak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-34.macs2_pooled_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.idr_ppr_idr_log = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_idr_log", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-31"}}]
+                    [stage-last.idr_pr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_pr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-29"}}]
+                    [stage-19.chosen_ctl_tas___dxfiles = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_tas___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-17"}}]
+                    [stage-28.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.chip__scatter_fastq_set_body2_merged_fastqs___dxfiles =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__scatter_fastq_set_body2_merged_fastqs___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-34.overlap_ppr_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_ppr_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-23.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-28.peaks_ = {"$dnanexus_link": {"wasInternal": true, "field": "peaks_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-19.spr_ta_pr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-last.idr_bfilt_idr_peak_bb = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_bfilt_idr_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-27"}}]
+                    [stage-11.ctl_fastqs_rep4_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep4_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-20.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-0.genome_tsv =
+                     project-BKpvFg00VBPV975PgJ6Q03v6:file-FG2B7XQ0VBPvBvvb24y3Pk39]
+                    [stage-15.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.idr_ppr_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_idr_peak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-31"}}]
+                    [stage-23.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-30.peak_pooled = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_pooled", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-24.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.overlap_ppr_bfilt_overlap_peak = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "overlap_ppr_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-last.chip__scatter_i_body_frip_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.spr_ta_pr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-last.chip__scatter_bam_body_nodup_bam = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_bam_body_nodup_bam",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-28.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-34.spp_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-18"}}]
+                    [stage-10.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-27.peak_pooled = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_pooled", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-16.pool_ta_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-14"}}]
+                    [stage-16.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__scatter_fastq_set_body_merged_fastqs___dxfiles =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__scatter_fastq_set_body_merged_fastqs___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-4.bwa_idx_tar = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bwa_idx_tar", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_pval =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_pval",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-22.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.spp_bfilt_rpeak_peak_bb = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_bfilt_rpeak_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-18"}}]
+                    [stage-31.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.reproducibility_overlap_reproducibility_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "reproducibility_overlap_reproducibility_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-32"}}]
+                    [stage-24.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__scatter_i_body_sig_pval1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body_sig_pval1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-12.ctl_bams = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "ctl_bams", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-34.xcor_score = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "xcor_score", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-7"}}]
+                    [stage-30.spp_pooled_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_pooled_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-23"}}]
+                    [stage-34.fingerprint_jsd_qcs = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "fingerprint_jsd_qcs", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-15"}}]
+                    [stage-last.idr_ppr_bfilt_idr_peak_bb = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "idr_ppr_bfilt_idr_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-31"}}]
+                    [stage-last.macs2_pooled_sig_pval = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_sig_pval", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.chip__scatter_i_body_sig_fc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_sig_fc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-1.genome_tsv = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "genome_tsv", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-30.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_fc =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_fc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-25.chip__true_rep_only_length_tas__body_ta_pooled1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-28.chip__scatter_i_body1_rpeak1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_rpeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-20.spr_ta_pr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-11.ctl_fastqs___dxfiles = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.chip__scatter_bam_body_ta = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_ta", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-last.chip__scatter_i_body_bfilt_npeak_bb1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body_bfilt_npeak_bb1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-28.chip__scatter_i_body1_rpeak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_fc1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_sig_fc1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.spr_ta_pr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-14.ctl_tas = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "ctl_tas", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-22.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-27.macs2_pooled_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.chip__scatter_fastq_set_body2_bam = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body2_bam",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-last.spp_pooled_rpeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_pooled_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-23"}}]
+                    [stage-2.fastqs_rep1_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep1_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-29.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.macs2_pooled_bfilt_npeak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "macs2_pooled_bfilt_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-34.chip__scatter_bam_body_pbc_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_pbc_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-last.idr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-27"}}]
+                    [stage-last.chip__scatter_fastq_set_body_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.idr_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-last.macs2_pooled_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-25.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.xcor_score = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "xcor_score", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-7"}}]
+                    [stage-24.chip__true_rep_only_length_tas__body_ta_pooled1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-31.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.overlap_ppr_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_ppr_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-2.fastqs_rep1_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep1_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-33.idr_pr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_pr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-29"}}]
+                    [stage-9.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-32.overlap_pr_bfilt_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_pr_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak_peak_bb1
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak_peak_bb1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.idr_pr_idr_unthresholded_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "idr_pr_idr_unthresholded_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-29"}}]
+                    [stage-last.macs2_pooled_sig_fc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_sig_fc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-30.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.chip__scatter_i_body1_bfilt_rpeak_peak_bb1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body1_bfilt_rpeak_peak_bb1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-last.overlap_pr_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_pr_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-34.filter_ctl_flagstat_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_flagstat_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-33.idr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-27"}}]
+                    [stage-last.chip__scatter_i_body1_rpeak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body1_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-34.idr_ppr_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_ppr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-31"}}]
+                    [stage-34.chip__scatter_fastq_set_body_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.xcor_plot_png = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "xcor_plot_png", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-7"}}]
+                    [stage-28.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-34.chip__scatter_bam_body_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_bam_body_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-2.fastqs_rep5_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep5_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.chip__scatter_i_body1_bfilt_rpeak_peak_bb = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body1_bfilt_rpeak_peak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-13.filter_ctl_nodup_bam = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_nodup_bam", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-18.chosen_ctl_tas___dxfiles = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_tas___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-17"}}]
+                    [stage-2.fastqs_rep4_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep4_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.macs2_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-0.fastqs___dxfiles = [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ]]
+                    [stage-26.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-10.spr_ta_pr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-19.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-11.ctl_fastqs_rep2_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep2_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-34.idr_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-30.macs2_pooled_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.macs2_bfilt_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_bfilt_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-17"}}]
+                    [stage-34.macs2_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-2.fastqs_rep3_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep3_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-11.ctl_fastqs_rep1_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep1_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-30.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.overlap_pr_bfilt_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_pr_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-32.overlap_bfilt_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-2.fastqs_rep6_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep6_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-30.peaks_pr1_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr1_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-28"}}]
+                    [stage-12.chip__scatter_fastq_set_body2_bam = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body2_bam",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-8.bam2ta_ta = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bam2ta_ta", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-6"}}]
+                    [stage-19.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak_peak_bb
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak_peak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak1
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-26.spp_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-18"}}]
+                    [stage-17.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-last.bam2ta_ctl_ta = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bam2ta_ctl_ta", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-13"}}]
+                    [stage-last.spp_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-18"}}]
+                    [stage-25.chosen_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-last.chip__scatter_i_body1_bfilt_rpeak = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body1_bfilt_rpeak",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-17.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.idr_pr_bfilt_idr_peak_bb = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "idr_pr_bfilt_idr_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-29"}}]
+                    [stage-34.chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_frip_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-26.peaks = {"$dnanexus_link": {"wasInternal": true, "field": "peaks",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-3.chip__scatter_fastq_set_body_merged_fastqs___dxfiles =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__scatter_fastq_set_body_merged_fastqs___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-23.chosen_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-34.xcor_plot_png = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "xcor_plot_png", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-7"}}]
+                    [stage-17.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-34.chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-30.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-16.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-34.fingerprint_plot = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fingerprint_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-15"}}]
+                    [stage-31.macs2_pooled_npeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_pooled_npeak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-22"}}]
+                    [stage-2.fastqs_rep2_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep2_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-15.nodup_bams_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "nodup_bams_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-6"}}]
+                    [stage-22.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-6.nodup_bams = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "nodup_bams", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-34.overlap_pr_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_pr_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-15.ctl_nodup_bams_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "ctl_nodup_bams_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-13"}}]
+                    [stage-30.chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_npeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-last.chip__scatter_i_body_bfilt_npeak = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body_bfilt_npeak",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.idr_ppr_idr_plot = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-31"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-2.read_genome_tsv_genome___dxfiles = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "read_genome_tsv_genome___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-1"}}]
+                    [stage-last.idr_ppr_idr_unthresholded_peak = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "idr_ppr_idr_unthresholded_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-31"}}]
+                    [stage-31.peaks_pr1_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr1_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-28"}}]
+                    [stage-last.spp_pooled_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_pooled_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-23"}}]
+                    [stage-last.filter_ctl_nodup_bam = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_nodup_bam", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-last.overlap_bfilt_overlap_peak_bb = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_bfilt_overlap_peak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-34.spp_pooled_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_pooled_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-23"}}]
+                    [stage-24.chip__true_rep_only_length_tas__body_ta_pooled = {"$dnanexus_link":
+                     {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-31.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.spp_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-18"}}]
+                    [stage-34.reproducibility_idr_reproducibility_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "reproducibility_idr_reproducibility_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-33"}}]
+                    [stage-29.peaks_pr1_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr1_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-28"}}]
+                    [stage-25.chip__true_rep_only_length_tas__body_ta_pooled = {"$dnanexus_link":
+                     {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__body_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-10"}}]
+                    [stage-last.chip__scatter_bam_body_pbc_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_pbc_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-22.pool_ta_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-14"}}]
+                    [stage-30.peak_ppr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_ppr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-7.chip__scatter_fastq_set_body1_ta = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_fastq_set_body1_ta", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-4"}}]
+                    [stage-17.choose_ctl_chosen_ctl_tas = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "choose_ctl_chosen_ctl_tas", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-16"}}]
+                    [stage-20.spr_ta_pr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spr_ta_pr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-9"}}]
+                    [stage-29.peaks_pr2_ = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr2_", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-28"}}]
+                    [stage-5.bams = {"$dnanexus_link": {"wasInternal": true, "field": "bams",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.chip__scatter_fastq_set_body_bam = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body_bam",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-20.chosen_ctl_tas___dxfiles = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "chosen_ctl_tas___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-17"}}]
+                    [stage-last.chip__scatter_fastq_set_body_bai = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body_bai",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-last.macs2_sig_fc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_sig_fc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-last.fingerprint_plot = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "fingerprint_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-15"}}]
+                    [stage-34.idr_idr_plot = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1 =
+                     {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_rpeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.chip__scatter_i_body_npeak1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_npeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-34.chip__scatter_bam_body_dup_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_dup_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-last.overlap_bfilt_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_bfilt_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-last.chip__scatter_i_body1_frip_qc1 = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body1_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-20"}}]
+                    [stage-0.ctl_fastqs___dxfiles = [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ]]
+                    [stage-last.read_genome_tsv_genome___dxfiles = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "read_genome_tsv_genome___dxfiles",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-1"}}]
+                    [stage-34.chip__scatter_i_body_frip_qc1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_frip_qc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.overlap_frip_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "overlap_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-26"}}]
+                    [stage-last.macs2_bfilt_npeak_bb = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "macs2_bfilt_npeak_bb", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-17"}}]
+                    [stage-31.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-31.peak_pooled = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_pooled", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.spp_bfilt_rpeak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "spp_bfilt_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-18"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak_bb1
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak_bb1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-2.fastqs_rep2_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep2_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.pool_ta_ctl_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ctl_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-14"}}]
+                    [stage-34.idr_pr_frip_qc = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_pr_frip_qc", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-29"}}]
+                    [stage-5.chip__scatter_fastq_set_body_bam = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_fastq_set_body_bam", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-2.fastqs_rep3_R2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep3_R2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.macs2_npeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_npeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-31.peak_ppr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_ppr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.chip__scatter_i_body_sig_pval = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_sig_pval", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-31.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-20.tas_ = {"$dnanexus_link": {"wasInternal": true, "field": "tas_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-27.peak_pairs___dxfiles = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "peak_pairs___dxfiles", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-34.filter_ctl_dup_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_dup_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-last.chip__scatter_i_body_bfilt_npeak_bb = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_i_body_bfilt_npeak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-27.spp_pooled_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_pooled_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-23"}}]
+                    [stage-31.spp_pooled_rpeak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "spp_pooled_rpeak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-23"}}]
+                    [stage-31.peak_ppr2 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_ppr2", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-11.ctl_fastqs_rep3_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep3_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-26.peak_pooled = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peak_pooled", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-2.fastqs_rep5_R1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "fastqs_rep5_R1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-34.idr_pr_idr_plot = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_pr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-29"}}]
+                    [stage-11.ctl_fastqs_rep6_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep6_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.chip__scatter_bam_body_dup_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_dup_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-28.chip__scatter_i_body_npeak1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_npeak1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-11.ctl_fastqs_rep5_R1 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep5_R1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.idr_pr_idr_log = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_pr_idr_log", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-29"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak_bb
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__macs2_body_bfilt_npeak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-24"}}]
+                    [stage-27.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.overlap_ppr_overlap_peak = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "overlap_ppr_overlap_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-30"}}]
+                    [stage-34.chip__scatter_i_body_frip_qc = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_frip_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+                    [stage-last.macs2_sig_pval = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "macs2_sig_pval", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-17"}}]
+                    [stage-last.filter_ctl_flagstat_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_flagstat_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-last.choose_ctl_chosen_ctl_tas = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "choose_ctl_chosen_ctl_tas", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-16"}}]
+                    [stage-6.chip__scatter_bam_body_nodup_bam = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_bam_body_nodup_bam", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-26.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-23.pool_ta_ta_pooled = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "pool_ta_ta_pooled", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-8"}}]
+                    [stage-13.ctl_nodup_bams = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "ctl_nodup_bams", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.chip__scatter_bam_body_nodup_bai = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_bam_body_nodup_bai",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-5"}}]
+                    [stage-7.bam2ta_ta = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "bam2ta_ta", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-6"}}]
+                    [stage-29.peaks_ = {"$dnanexus_link": {"wasInternal": true, "field": "peaks_",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-26"}}]
+                    [stage-8.tas = {"$dnanexus_link": {"wasInternal": true, "field": "tas",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-last.overlap_pr_bfilt_overlap_peak_bb = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "overlap_pr_bfilt_overlap_peak_bb",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-28"}}]
+                    [stage-28.peaks_pr1 = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "peaks_pr1", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-0"}}]
+                    [stage-last.idr_pr_idr_plot = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_pr_idr_plot", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj",
+                     "stage": "stage-29"}}]
+                    [stage-last.idr_idr_peak = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "idr_idr_peak", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-27"}}]
+                    [stage-last.chip__scatter_fastq_set_body2_flagstat_qc = {"$dnanexus_link":
+                     {"wasInternal": true, "field": "chip__scatter_fastq_set_body2_flagstat_qc",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-11"}}]
+                    [stage-last.chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak1
+                     = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "chip__true_rep_only_length_tas__peak_caller__spp_body_bfilt_rpeak1",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-25"}}]
+                    [stage-last.filter_ctl_pbc_qc = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "filter_ctl_pbc_qc", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-12"}}]
+                    [stage-26.chrsz = {"$dnanexus_link": {"wasInternal": true, "field": "chrsz",
+                     "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-2"}}]
+                    [stage-11.ctl_fastqs_rep5_R2 = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "ctl_fastqs_rep5_R2", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-0"}}]
+                    [stage-22.blacklist = {"$dnanexus_link": {"wasInternal": true, "field":
+                     "blacklist", "analysis": "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage":
+                     "stage-2"}}]
+                    [stage-33.idr_ppr_bfilt_idr_peak = {"$dnanexus_link": {"wasInternal": true,
+                     "field": "idr_ppr_bfilt_idr_peak", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-31"}}]
+                    [stage-last.chip__scatter_i_body_sig_fc1 = {"$dnanexus_link": {"wasInternal":
+                     true, "field": "chip__scatter_i_body_sig_fc1", "analysis":
+                     "analysis-FJ77X0j0F4ZyY7q4P5qj11vj", "stage": "stage-19"}}]
+Output              stage-20.chip__scatter_i_body1_bfilt_rpeak_peak_bb1 = [
+                     file-FJ7vbPQ00VX1ff1g1kgv5jyK ]
+                    stage-26.peak_pairs___dxfiles = []
+                    stage-5.chip__scatter_bam_body_dup_qc = [ file-FJ7JkyQ00Fk5qzvK49bxfP2X ]
+                    stage-last.spp_bfilt_rpeak = [ file-FJ7xFFQ0vVQ6YFY84F0PXQF2 ]
+                    stage-0.no_jsd = false
+                    stage-last.chip__scatter_i_body_bfilt_npeak1 = []
+                    stage-last.chip__scatter_i_body1_bfilt_rpeak1 = [
+                     file-FJ7vbP800VX8v2Zk1ppb6PZ3 ]
+                    stage-20.chip__scatter_i_body1_frip_qc1 = [ file-FJ7vbPj00VX2V7pV1kyK9P9K ]
+                    stage-2.bwa_idx_tar = file-FB7qJyQ0z93VZ47x6vYb9v0F
+                    stage-20.chip__scatter_i_body1_frip_qc = [ file-FJ7vbVj0jZ5gq25GBXYJgJv2 ]
+                    stage-last.chip__scatter_i_body1_rpeak1 = [ file-FJ7vbP000VX5bbj51q506B6z ]
+                    stage-last.chip__scatter_fastq_set_body2_merged_fastqs = { value: [ [
+                     file-FJ7Fkq00Gg2fYFY84F0KK2v8, file-FJ7Fp100Gg2Z0Q044BBG20PV ] ], womType:
+                     "Array[Array[File]]" }
+                    stage-2.fastqs_rep2 = { value: [], womType: "Array[Array[File]]" }
+                    stage-0.ctl_fastqs_rep1_R1 = []
+                    stage-3.trim_fastq_trimmed_fastq = [ file-FJ7G37j0Zx0KP8P54FQ85yv0 ]
+                    stage-0.ctl_tas = []
+                    stage-last.filter_ctl_dup_qc = [ file-FJ7bZYj0vJZ2PZX049z53FgG ]
+                    stage-18.spp_bfilt_rpeak_peak_bb = [ file-FJ7xFFQ0vVQ2Z8JJ49k37p6k ]
+                    stage-0.fastqs = { value: [ [ [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-26.peak_pairs = { value: [], womType: "Array[Pair[String, Array[File]]]"
+                     }
+                    stage-last.chip__scatter_i_body_sig_pval1 = []
+                    stage-29.idr_pr_idr_unthresholded_peak = [ file-FJ7xpQj06Fx1ff1g1kgv8xzv ]
+                    stage-2.chip__scatter_fastq_set_body_flagstat_qc = [
+                     file-FJ7FfG00Bzx0Z0qzK6j25fqy ]
+                    stage-last.chip__scatter_bam_body_dup_qc = [ file-FJ7JkyQ00Fk5qzvK49bxfP2X ]
+                    stage-12.filter_ctl_flagstat_qc = [ file-FJ7bZZ00vJZKP8P54FQ8j1qp ]
+                    stage-last.xcor_plot_pdf = [ file-FJ7KVJ00gQpXZ8JJ49k29KXv ]
+                    stage-last.reproducibility_idr_reproducibility_qc =
+                     file-FJ7xv4j0P865bbj51q509bfZ
+                    stage-last.chip__scatter_fastq_set_body1_bam = [ file-FJ7GyKQ04qYyyyZJ1pQ729KG
+                     ]
+                    stage-12.filter_ctl_nodup_bai = [ file-FJ7bZZ80vJZPfBVv4BZq0ZjG ]
+                    stage-last.overlap_pr_frip_qc = [ file-FJ7xV2j0pJ9fYFY84F0PY1qF ]
+                    stage-last.macs2_bfilt_npeak = [ file-FJ7jXk00pzpxGKkk1kZ9bYJ6 ]
+                    stage-2.fastqs_ = { value: [ [ [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-0.ctl_fastqs_rep6_R2 = []
+                    stage-28.overlap_pr_overlap_peak = [ file-FJ7xV280pJ9yP8P54FQ9BzKP ]
+                    stage-11.ctl_fastqs_rep4 = { value: [], womType: "Array[Array[File]]" }
+                    stage-0.idr_thresh = 0.05
+                    stage-0.peak_caller = ""
+                    stage-last.trim_fastq_trimmed_fastq = [ file-FJ7G37j0Zx0KP8P54FQ85yv0 ]
+                    stage-0.peaks = []
+                    stage-28.overlap_pr_bfilt_overlap_peak = [ file-FJ7xV2Q0pJ9Z0Q044BBJ6z19 ]
+                    stage-0.tas = []
+                    stage-last.qc_report_qc_json = file-FJ7xy9Q0Z5KyyyZJ1pQ870PX
+                    stage-29.idr_pr_idr_plot = [ file-FJ7xpQQ06FxKyyZJ1pQ86j89 ]
+                    stage-last.idr_idr_plot = []
+                    stage-0.fastqs_rep5_R1 = []
+                    stage-last.overlap_frip_qc = []
+                    stage-2.chip__scatter_fastq_set_body_bam = [ file-FJ7Ff7Q0Bzx5zpZ0K59fg56p ]
+                    stage-5.chip__scatter_bam_body_pbc_qc = [ file-FJ7Jkz800Fk5qzvK49bxfP2Z ]
+                    stage-last.chip__scatter_fastq_set_body1_bai = [ file-FJ7GyQQ04qYbbbj51q5P5Z3X
+                     ]
+                    stage-11.ctl_fastqs_ = { value: [ [ [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-12.filter_ctl_nodup_bam = [ file-FJ7bZZj0vJZKP8P54FQ8j1qy ]
+                    stage-last.idr_pr_frip_qc = [ file-FJ7xpQj06FxJGKkk1kZB68XF ]
+                    stage-last.reproducibility_overlap_reproducibility_qc =
+                     file-FJ7xYF00jxybqzvK49byf066
+                    stage-21.rounded_mean = 75
+                    stage-last.idr_pr_idr_plot = [ file-FJ7xpQQ06FxKyyZJ1pQ86j89 ]
+                    stage-last.xcor_fraglen = [ 75 ]
+                    stage-0.ctl_fastqs = { value: [ [ [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ] ] ], womType: "Array[Array[Array[File]]]" }
+                    stage-17.fraglen_ = [ 75 ]
+                    stage-28.overlap_pr_bfilt_overlap_peak_bb = [ file-FJ7xV2j0pJ9yP8P54FQ9BzX2 ]
+                    stage-11.ctl_fastqs_rep1___dxfiles = []
+                    stage-7.xcor_fraglen = [ 75 ]
+                    stage-0.fastqs_rep5_R2 = []
+                    stage-last.idr_idr_log = []
+                    stage-last.chip__scatter_i_body1_frip_qc = [ file-FJ7vbVj0jZ5gq25GBXYJgJv2 ]
+                    stage-last.chip__scatter_fastq_set_body2_bai = [ file-FJ7XyQQ0ZjKKyyZJ1pQ7GFG9
+                     ]
+                    stage-0.spp_cap_num_peak = 300000
+                    stage-last.chip__scatter_fastq_set_body1_flagstat_qc = [
+                     file-FJ7GyQQ04qYXV7pV1kyJ8fqQ ]
+                    stage-0.ctl_nodup_bams = []
+                    stage-last.idr_pr_idr_peak = [ file-FJ7xpQ806FxJGKkk1kZB68Vz ]
+                    stage-12.filter_ctl_pbc_qc = [ file-FJ7bZZQ0vJZ6YFY84F0P06b6 ]
+                    stage-last.chip__scatter_i_body_npeak = []
+                    stage-last.chip__scatter_fastq_set_body1_ta = [ file-FJ7J1Q001gkbqzvK49bxXZ6F
+                     ]
+                    stage-2.fastqs____dxfiles = [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ]
+                    stage-11.chip__scatter_fastq_set_body2_merged_fastqs = { value: [ [
+                     file-FJ7Fkq00Gg2fYFY84F0KK2v8, file-FJ7Fp100Gg2Z0Q044BBG20PV ] ], womType:
+                     "Array[Array[File]]" }
+                    stage-last.bam2ta_ctl_ta = [ file-FJ7f9400J5VyQ90YBXjzpq0P ]
+                    stage-last.chip__scatter_fastq_set_body_merged_fastqs = { value: [ [
+                     file-FJ77g2004jV7q25GBXYGKjJY, file-FJ77g6004jVKQ90YBXjz1g28 ] ], womType:
+                     "Array[Array[File]]" }
+                    stage-11.ctl_fastqs_rep2 = { value: [], womType: "Array[Array[File]]" }
+                    stage-0.fastqs_rep1_R2 = []
+                    stage-7.xcor_plot_png = [ file-FJ7KVJ80gQpbqzvK49bxfvQP ]
+                    stage-29.idr_pr_idr_log = [ file-FJ7xpQ006FxJGKkk1kZB68Vx ]
+                    stage-0.ctl_fastqs_rep4_R2 = []
+                    stage-3.fastqs_xcor = { value: [ [ file-FJ77g2004jV7q25GBXYGKjJY,
+                     file-FJ77g6004jVKQ90YBXjz1g28 ] ], womType: "Array[Array[File]]" }
+                    stage-last.fraglen_mean_rounded_mean = 75
+                    stage-last.qc_report_report = file-FJ7xy9Q0Z5KyyyZJ1pQ870PK
+                    stage-last.overlap_overlap_peak = []
+                    stage-34.qc_report_qc_json_match = false
+                    stage-11.ctl_fastqs_rep3 = { value: [], womType: "Array[Array[File]]" }
+                    stage-28.peaks_pr2_ = [ file-FJ7vbP000VX5bbj51q506B6z ]
+                    stage-last.chip__scatter_i_body_npeak1 = []
+                    stage-2.fastqs_rep4___dxfiles = []
+                    stage-last.pool_ta_ctl_ta_pooled = file-FJ7fBy00XypVff1g1kgqb6gP
+                    stage-1.peak_caller_ = "spp"
+                    stage-11.ctl_fastqs_rep2___dxfiles = []
+                    stage-last.idr_bfilt_idr_peak_bb = []
+                    stage-6.nodup_bams_ = [ file-FJ7JkzQ00Fk6YFY84F0KYq36 ]
+                    stage-18.spp_rpeak = [ file-FJ7xFF80vVQ5qzvK49byb5Vv ]
+                    stage-0.genome_tsv = file-FG2B7XQ0VBPvBvvb24y3Pk39
+                    stage-last.overlap_pr_overlap_peak = [ file-FJ7xV280pJ9yP8P54FQ9BzKP ]
+                    stage-last.chip__scatter_i_body_frip_qc1 = []
+                    stage-0.fastqs_rep4_R2 = []
+                    stage-3.fastqs_xcor___dxfiles = [ file-FJ77g2004jV7q25GBXYGKjJY,
+                     file-FJ77g6004jVKQ90YBXjz1g28 ]
+                    stage-last.chip__scatter_bam_body_flagstat_qc = [
+                     file-FJ7Jkz000Fk40Q044BBG7yJ7 ]
+                    stage-0.ctl_fastqs_rep2_R1 = []
+                    stage-last.chip__scatter_i_body_frip_qc = []
+                    stage-0.fastqs_rep2_R2 = []
+                    stage-last.chip__scatter_bam_body_nodup_bam = [ file-FJ7JkzQ00Fk6YFY84F0KYq36
+                     ]
+                    stage-15.fingerprint_jsd_qcs = [ file-FJ7fY9Q07f3jv2Zk1ppZf962 ]
+                    stage-5.chip__scatter_bam_body_flagstat_qc = [ file-FJ7Jkz000Fk40Q044BBG7yJ7 ]
+                    stage-last.chip__scatter_bam_body_nodup_bai = [ file-FJ7Jkz000Fk2PZX049z4g1bx
+                     ]
+                    stage-last.chip__scatter_fastq_set_body_merged_fastqs___dxfiles = [
+                     file-FJ77g2004jV7q25GBXYGKjJY, file-FJ77g6004jVKQ90YBXjz1g28 ]
+                    stage-11.ctl_fastqs_rep4___dxfiles = []
+                    stage-last.spp_bfilt_rpeak_peak_bb = [ file-FJ7xFFQ0vVQ2Z8JJ49k37p6k ]
+                    stage-28.peaks_pr1_ = [ file-FJ7vbV00jZ5jYQQBBYZqqZQJ ]
+                    stage-0.bams = []
+                    stage-0.pval_thresh = 0.01
+                    stage-1.read_genome_tsv_genome = { dnase:
+                     "dx://file-FG29Yy80JVXzgFXF4p0828JG", womType: "Map[String, String]",
+                     blacklist: "dx://file-FB7q8bj04ZxbvVFZJYF9Jz3P", chrsz:
+                     "dx://file-FB7q8bQ0z6kb7GgzJZ6xF3ZF", tss_enrich:
+                     "dx://file-FG29YxQ03x08FzY30jbp05JV", reg2map_bed:
+                     "dx://file-FG29Yv80Bp1zv70kGBGGJ0Fg", reg2map:
+                     "dx://file-FG29Yv00xBkpFJZ10kPbByQ9", ref_fa:
+                     "dx://file-FB7q8v808G12bZ8F6xQb8BJ2", roadmap_meta:
+                     "dx://file-FG29Yq00PQyq35bq0kk32g7Z", bowtie2_idx_tar:
+                     "dx://file-FB7qJYj0v9ZXbZ8F6xQb8QY9", gensz: "hs", prom:
+                     "dx://file-FG29YxQ0VyBV0zY10jQX1V8g", bwa_idx_tar:
+                     "dx://file-FB7qJyQ0z93VZ47x6vYb9v0F", enh:
+                     "dx://file-FG29Yxj0866KGy0xGBvvv9Jf" }
+                    stage-2.fastqs_rep5 = { value: [], womType: "Array[Array[File]]" }
+                    stage-34.qc_report_report = file-FJ7xy9Q0Z5KyyyZJ1pQ870PK
+                    stage-4.chip__scatter_fastq_set_body1_bai = [ file-FJ7GyQQ04qYbbbj51q5P5Z3X ]
+                    stage-0.align_only = false
+                    stage-0.ctl_fastqs_rep3_R1 = []
+                    stage-0.paired_end = true
+                    stage-last.chip__scatter_i_body_sig_fc = []
+                    stage-last.xcor_score = [ file-FJ7KVJ80gQpZ0Q044BBG89P2 ]
+                    stage-9.spr_ta_pr2 = [ file-FJ7KPgQ03j5GpxpKBY3VP1Qy ]
+                    stage-0.ctl_fastqs_rep5_R1 = []
+                    stage-17.macs2_npeak = [ file-FJ7jXk80pzpjG6B81q9Y9Px2 ]
+                    stage-2.gensz = "hs"
+                    stage-2.fastqs_rep4 = { value: [], womType: "Array[Array[File]]" }
+                    stage-last.chip__scatter_bam_body_ta = [ file-FJ7GG380Q1qJGKkk1kZ90qx4 ]
+                    stage-17.macs2_bfilt_npeak = [ file-FJ7jXk00pzpxGKkk1kZ9bYJ6 ]
+                    stage-last.bam2ta_ta = [ file-FJ7KBq00kQ7v559bBYP9vY6z ]
+                    stage-0.ctl_fastqs_rep5_R2 = []
+                    stage-last.idr_pr_bfilt_idr_peak_bb = [ file-FJ7xpQ806FxKGPKB1p82xb3Y ]
+                    stage-17.chosen_ctl_tas = { value: [ [ file-FJ7fK280QpVF924XK63JkJBB ] ],
+                     womType: "Array[Array[File]]" }
+                    stage-11.chip__scatter_fastq_set_body2_bai = [ file-FJ7XyQQ0ZjKKyyZJ1pQ7GFG9 ]
+                    stage-16.choose_ctl_chosen_ctl_tas = [ file-FJ7fK280QpVF924XK63JkJBB ]
+                    stage-33.reproducibility_idr_reproducibility_qc =
+                     file-FJ7xv4j0P865bbj51q509bfZ
+                    stage-0.macs2_cap_num_peak = 500000
+                    stage-2.fastqs_rep3___dxfiles = []
+                    stage-last.spp_rpeak = [ file-FJ7xFF80vVQ5qzvK49byb5Vv ]
+                    stage-0.fastqs_rep1_R1 = []
+                    stage-4.trimmed_fastqs_R1___dxfiles = [ file-FJ7G37j0Zx0KP8P54FQ85yv0 ]
+                    stage-4.chip__scatter_fastq_set_body1_bam = [ file-FJ7GyKQ04qYyyyZJ1pQ729KG ]
+                    stage-last.chip__scatter_fastq_set_body_flagstat_qc = [
+                     file-FJ7FfG00Bzx0Z0qzK6j25fqy ]
+                    stage-1.idr_rank = "signal.value"
+                    stage-last.idr_frip_qc = []
+                    stage-17.macs2_frip_qc = [ file-FJ7jXg00pzpjv2Zk1ppZjb5z ]
+                    stage-2.fastqs_rep5___dxfiles = []
+                    stage-0.fastqs_rep2_R1 = []
+                    stage-11.ctl_fastqs_rep6___dxfiles = []
+                    stage-29.idr_pr_idr_peak = [ file-FJ7xpQ806FxJGKkk1kZB68Vz ]
+                    stage-last.idr_pr_idr_unthresholded_peak = [ file-FJ7xpQj06Fx1ff1g1kgv8xzv ]
+                    stage-last.spr_ta_pr2 = [ file-FJ7KPgQ03j5GpxpKBY3VP1Qy ]
+                    stage-last.chip__scatter_i_body1_bfilt_rpeak_peak_bb1 = [
+                     file-FJ7vbPQ00VX1ff1g1kgv5jyK ]
+                    stage-last.chip__scatter_i_body_bfilt_npeak_bb = []
+                    stage-last.chip__scatter_fastq_set_body_bai = [ file-FJ7FfFj0Bzx9J773K6yFJKjp
+                     ]
+                    stage-last.chip__scatter_i_body1_rpeak = [ file-FJ7vbV00jZ5jYQQBBYZqqZQJ ]
+                    stage-11.ctl_fastqs_rep5 = { value: [], womType: "Array[Array[File]]" }
+                    stage-last.xcor_plot_png = [ file-FJ7KVJ80gQpbqzvK49bxfvQP ]
+                    stage-28.overlap_pr_frip_qc = [ file-FJ7xV2j0pJ9fYFY84F0PY1qF ]
+                    stage-last.chip__scatter_i_body1_bfilt_rpeak_peak_bb = [
+                     file-FJ7vbVQ0jZ5jYQQBBYZqqZQY ]
+                    stage-0.fraglen = []
+                    stage-2.blacklist = file-FB7q8bj04ZxbvVFZJYF9Jz3P
+                    stage-last.macs2_frip_qc = [ file-FJ7jXg00pzpjv2Zk1ppZjb5z ]
+                    stage-0.fastqs___dxfiles = [ file-FJ74z9Q0F4ZkJzzG5K1GyVK2,
+                     file-FJ74z9Q0F4ZVzpq13BFK4J6K ]
+                    stage-last.chip__scatter_fastq_set_body2_bam = [ file-FJ7Xy9j0ZjK8v2Zk1ppZPVXK
+                     ]
+                    stage-0.fastqs_rep6_R2 = []
+                    stage-last.idr_bfilt_idr_peak = []
+                    stage-2.fastqs_rep6 = { value: [], womType: "Array[Array[File]]" }
+                    stage-2.fastqs_rep3 = { value: [], womType: "Array[Array[File]]" }
+                    stage-0.peaks_pr2 = []
+                    stage-4.trimmed_fastqs_R1 = { value: [ [ file-FJ7G37j0Zx0KP8P54FQ85yv0 ] ],
+                     womType: "Array[Array[File]]" }
+                    stage-last.overlap_pr_bfilt_overlap_peak = [ file-FJ7xV2Q0pJ9Z0Q044BBJ6z19 ]
+                    stage-11.ctl_fastqs_rep3___dxfiles = []
+                    stage-29.idr_pr_bfilt_idr_peak = [ file-FJ7xpPj06FxKyyZJ1pQ86j87 ]
+                    stage-last.filter_ctl_nodup_bam = [ file-FJ7bZZj0vJZKP8P54FQ8j1qy ]
+                    stage-2.fastqs_rep6___dxfiles = []
+                    stage-11.ctl_fastqs_rep6 = { value: [], womType: "Array[Array[File]]" }
+                    stage-1.enable_idr = true
+                    stage-12.filter_ctl_dup_qc = [ file-FJ7bZYj0vJZ2PZX049z53FgG ]
+                    stage-20.chip__scatter_i_body1_bfilt_rpeak = [ file-FJ7vbV80jZ5QGvGjBZ25v707 ]
+                    stage-0.pipeline_type = "tf"
+                    stage-last.spp_frip_qc = [ file-FJ7xFG00vVQ40Q044BBJ6GQ5 ]
+                    stage-last.spr_ta_pr1 = [ file-FJ7KPf803j5BJxgPBZ82FJ66 ]
+                    stage-5.bams_ = [ file-FJ7Ff7Q0Bzx5zpZ0K59fg56p ]
+                    stage-0.ctl_fastqs_rep6_R1 = []
+                    stage-0.peaks_pr1 = []
+                    stage-7.tas_xcor = [ file-FJ7J1Q001gkbqzvK49bxXZ6F ]
+                    stage-11.ctl_fastqs_rep1 = { value: [], womType: "Array[Array[File]]" }
+                    stage-14.pool_ta_ctl_ta_pooled = file-FJ7fBy00XypVff1g1kgqb6gP
+                    stage-1.read_genome_tsv_genome___dxfiles = []
+                    stage-4.chip__scatter_fastq_set_body1_flagstat_qc = [
+                     file-FJ7GyQQ04qYXV7pV1kyJ8fqQ ]
+                    stage-last.read_genome_tsv_genome = { dnase:
+                     "dx://file-FG29Yy80JVXzgFXF4p0828JG", womType: "Map[String, String]",
+                     blacklist: "dx://file-FB7q8bj04ZxbvVFZJYF9Jz3P", chrsz:
+                     "dx://file-FB7q8bQ0z6kb7GgzJZ6xF3ZF", tss_enrich:
+                     "dx://file-FG29YxQ03x08FzY30jbp05JV", reg2map_bed:
+                     "dx://file-FG29Yv80Bp1zv70kGBGGJ0Fg", reg2map:
+                     "dx://file-FG29Yv00xBkpFJZ10kPbByQ9", ref_fa:
+                     "dx://file-FB7q8v808G12bZ8F6xQb8BJ2", roadmap_meta:
+                     "dx://file-FG29Yq00PQyq35bq0kk32g7Z", bowtie2_idx_tar:
+                     "dx://file-FB7qJYj0v9ZXbZ8F6xQb8QY9", gensz: "hs", prom:
+                     "dx://file-FG29YxQ0VyBV0zY10jQX1V8g", bwa_idx_tar:
+                     "dx://file-FB7qJyQ0z93VZ47x6vYb9v0F", enh:
+                     "dx://file-FG29Yxj0866KGy0xGBvvv9Jf" }
+                    stage-2.chip__scatter_fastq_set_body_merged_fastqs___dxfiles = [
+                     file-FJ77g2004jV7q25GBXYGKjJY, file-FJ77g6004jVKQ90YBXjz1g28 ]
+                    stage-2.fastqs_rep1___dxfiles = []
+                    stage-last.idr_idr_peak = []
+                    stage-11.chip__scatter_fastq_set_body2_bam = [ file-FJ7Xy9j0ZjK8v2Zk1ppZPVXK ]
+                    stage-20.chip__scatter_i_body1_rpeak1 = [ file-FJ7vbP000VX5bbj51q506B6z ]
+                    stage-last.chip__scatter_i_body_bfilt_npeak = []
+                    stage-22.chosen_ctl_ta_pooled = []
+                    stage-0.true_rep_only = false
+                    stage-17.chosen_ctl_tas___dxfiles = [ file-FJ7fK280QpVF924XK63JkJBB ]
+                    stage-last.chip__scatter_i_body_bfilt_npeak_bb1 = []
+                    stage-1.peak_type = "regionPeak"
+                    stage-2.chip__scatter_fastq_set_body_bai = [ file-FJ7FfFj0Bzx9J773K6yFJKjp ]
+                    stage-last.overlap_bfilt_overlap_peak_bb = []
+                    stage-0.fastqs_rep3_R2 = []
+                    stage-7.xcor_plot_pdf = [ file-FJ7KVJ00gQpXZ8JJ49k29KXv ]
+                    stage-last.idr_idr_unthresholded_peak = []
+                    stage-11.ctl_fastqs____dxfiles = [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ]
+                    stage-7.paired_end_xcor = false
+                    stage-last.idr_pr_bfilt_idr_peak = [ file-FJ7xpPj06FxKyyZJ1pQ86j87 ]
+                    stage-4.chip__scatter_fastq_set_body1_ta = [ file-FJ7J1Q001gkbqzvK49bxXZ6F ]
+                    stage-32.reproducibility_overlap_reproducibility_qc =
+                     file-FJ7xYF00jxybqzvK49byf066
+                    stage-20.chip__scatter_i_body1_bfilt_rpeak_peak_bb = [
+                     file-FJ7vbVQ0jZ5jYQQBBYZqqZQY ]
+                    stage-11.chip__scatter_fastq_set_body2_flagstat_qc = [
+                     file-FJ7XyQj0ZjKKyyZJ1pQ7GFGF ]
+                    stage-18.spp_bfilt_rpeak = [ file-FJ7xFFQ0vVQ6YFY84F0PXQF2 ]
+                    stage-0.ctl_fastqs_rep2_R2 = []
+                    stage-2.fastqs_rep1 = { value: [], womType: "Array[Array[File]]" }
+                    stage-18.spp_frip_qc = [ file-FJ7xFG00vVQ40Q044BBJ6GQ5 ]
+                    stage-13.bam2ta_ctl_ta = [ file-FJ7f9400J5VyQ90YBXjzpq0P ]
+                    stage-17.macs2_sig_pval = [ file-FJ7jXg00pzpxGKkk1kZ9bXvz ]
+                    stage-last.chip__scatter_bam_body_pbc_qc = [ file-FJ7Jkz800Fk5qzvK49bxfP2Z ]
+                    stage-last.macs2_sig_fc = [ file-FJ7jXkQ0pzpbbbj51q5PjjF5 ]
+                    stage-17.macs2_bfilt_npeak_bb = [ file-FJ7jXjj0pzpXV7pV1kyJv0fZ ]
+                    stage-last.fingerprint_plot = file-FJ7fY9807f3yyyZJ1pQ7Xypk
+                    stage-6.bam2ta_ta = [ file-FJ7KBq00kQ7v559bBYP9vY6z ]
+                    stage-last.chip__scatter_fastq_set_body2_merged_fastqs___dxfiles = [
+                     file-FJ7Fkq00Gg2fYFY84F0KK2v8, file-FJ7Fp100Gg2Z0Q044BBG20PV ]
+                    stage-2.fastqs_rep2___dxfiles = []
+                    stage-last.overlap_bfilt_overlap_peak = []
+                    stage-last.chip__scatter_i_body1_frip_qc1 = [ file-FJ7vbPj00VX2V7pV1kyK9P9K ]
+                    stage-0.ctl_fastqs___dxfiles = [ file-FJ73k3j0F4ZVy5J1589kBFB2,
+                     file-FJ73k3j0F4Zzxyp821XKk35g ]
+                    stage-last.read_genome_tsv_genome___dxfiles = []
+                    stage-last.chip__scatter_i_body1_bfilt_rpeak = [ file-FJ7vbV80jZ5QGvGjBZ25v707
+                     ]
+                    stage-20.chip__scatter_i_body1_bfilt_rpeak1 = [ file-FJ7vbP800VX8v2Zk1ppb6PZ3
+                     ]
+                    stage-last.macs2_bfilt_npeak_bb = [ file-FJ7jXjj0pzpXV7pV1kyJv0fZ ]
+                    stage-9.spr_ta_pr1 = [ file-FJ7KPf803j5BJxgPBZ82FJ66 ]
+                    stage-20.chip__scatter_i_body1_rpeak = [ file-FJ7vbV00jZ5jYQQBBYZqqZQJ ]
+                    stage-0.ctl_bams = []
+                    stage-8.tas_ = [ file-FJ7KBq00kQ7v559bBYP9vY6z ]
+                    stage-5.chip__scatter_bam_body_nodup_bai = [ file-FJ7Jkz000Fk2PZX049z4g1bx ]
+                    stage-last.fingerprint_jsd_qcs = [ file-FJ7fY9Q07f3jv2Zk1ppZf962 ]
+                    stage-0.ctl_fastqs_rep1_R2 = []
+                    stage-last.macs2_npeak = [ file-FJ7jXk80pzpjG6B81q9Y9Px2 ]
+                    stage-last.chip__scatter_fastq_set_body2_flagstat_qc = [
+                     file-FJ7XyQj0ZjKKyyZJ1pQ7GFGF ]
+                    stage-0.fastqs_rep3_R1 = []
+                    stage-last.chip__scatter_i_body_sig_pval = []
+                    stage-14.ctl_tas_ = [
+                     "dx://file-FJ7f9400J5VyQ90YBXjzpq0P:://ENCFF094LCI.merged.nodup.tagAlign.gz"
+                     ]
+                    stage-2.chip__scatter_fastq_set_body_merged_fastqs = { value: [ [
+                     file-FJ77g2004jV7q25GBXYGKjJY, file-FJ77g6004jVKQ90YBXjz1g28 ] ], womType:
+                     "Array[Array[File]]" }
+                    stage-last.chip__scatter_fastq_set_body_bam = [ file-FJ7Ff7Q0Bzx5zpZ0K59fg56p
+                     ]
+                    stage-15.fingerprint_plot = file-FJ7fY9807f3yyyZJ1pQ7Xypk
+                    stage-7.xcor_score = [ file-FJ7KVJ80gQpZ0Q044BBG89P2 ]
+                    stage-29.idr_pr_bfilt_idr_peak_bb = [ file-FJ7xpQ806FxKGPKB1p82xb3Y ]
+                    stage-34.qc_report_qc_json = file-FJ7xy9Q0Z5KyyyZJ1pQ870PX
+                    stage-last.idr_pr_idr_log = [ file-FJ7xpQ006FxJGKkk1kZB68Vx ]
+                    stage-0.nodup_bams = []
+                    stage-29.idr_pr_frip_qc = [ file-FJ7xpQj06FxJGKkk1kZB68XF ]
+                    stage-12.ctl_bams_ = [ file-FJ7Xy9j0ZjK8v2Zk1ppZPVXK ]
+                    stage-last.chip__scatter_i_body_sig_fc1 = []
+                    stage-last.macs2_sig_pval = [ file-FJ7jXg00pzpxGKkk1kZ9bXvz ]
+                    stage-5.chip__scatter_bam_body_nodup_bam = [ file-FJ7JkzQ00Fk6YFY84F0KYq36 ]
+                    stage-0.ctl_fastqs_rep3_R2 = []
+                    stage-last.choose_ctl_chosen_ctl_tas = [ file-FJ7fK280QpVF924XK63JkJBB ]
+                    stage-0.fastqs_rep6_R1 = []
+                    stage-last.filter_ctl_flagstat_qc = [ file-FJ7bZZ00vJZKP8P54FQ8j1qp ]
+                    stage-last.overlap_pr_bfilt_overlap_peak_bb = [ file-FJ7xV2j0pJ9yP8P54FQ9BzX2
+                     ]
+                    stage-last.qc_report_qc_json_match = false
+                    stage-11.chip__scatter_fastq_set_body2_merged_fastqs___dxfiles = [
+                     file-FJ7Fkq00Gg2fYFY84F0KK2v8, file-FJ7Fp100Gg2Z0Q044BBG20PV ]
+                    stage-17.macs2_sig_fc = [ file-FJ7jXkQ0pzpbbbj51q5PjjF5 ]
+                    stage-5.chip__scatter_bam_body_ta = [ file-FJ7GG380Q1qJGKkk1kZ90qx4 ]
+                    stage-11.ctl_fastqs_rep5___dxfiles = []
+                    stage-13.ctl_nodup_bams_ = [ file-FJ7bZZj0vJZKP8P54FQ8j1qy ]
+                    stage-2.chrsz = file-FB7q8bQ0z6kb7GgzJZ6xF3ZF
+                    stage-last.filter_ctl_nodup_bai = [ file-FJ7bZZ80vJZPfBVv4BZq0ZjG ]
+                    stage-last.filter_ctl_pbc_qc = [ file-FJ7bZZQ0vJZ6YFY84F0P06b6 ]
+                    stage-0.ctl_fastqs_rep4_R1 = []
+                    stage-26.peaks_ = [ file-FJ7xFF80vVQ5qzvK49byb5Vv ]
+                    stage-0.fastqs_rep4_R1 = []
+Output folder       /
+Launched by         keenangraham
+Created             Tue Jul 17 16:17:22 2018
+Finished            Wed Jul 18 17:48:38 2018 (Wall-clock time: 1 day, 1:31:15)
+Last modified       Wed Jul 18 17:48:47 2018
+Depends on          -
+Tags                -
+Properties          -
+Total Price         $25.63
+priceComputedAt     1531961324213
