@@ -1,0 +1,21 @@
+{
+	"atac.genome_tsv": "gs://atac-seq-runs/input-files/hg38_google.tsv",
+	"atac.fastqs_rep1_R1": ["gs://thehatchallenge/ENCSR117PYB/rep1_ENCLB332HEY/ENCFF695YHX_R1.fastq.gz"],
+	"atac.fastqs_rep1_R2": ["gs://thehatchallenge/ENCSR117PYB/rep1_ENCLB332HEY/ENCFF549AFY_R2.fastq.gz"],
+	"atac.pipeline_type": "atac",
+	"atac.paired_end": true,
+	"atac.trim_adapter.cpu": 4,
+	"atac.bowtie2.cpu": 8,
+	"atac.filter.cpu": 4,
+	"atac.bam2ta.cpu": 4,
+	"atac.xcor.cpu": 4,
+	"atac.trim_adapter.mem_mb": 20000,
+        "atac.bowtie2.mem_mb": 40000,
+	"atac.filter.mem_mb": 40000,
+	"atac.bam2ta.mem_mb": 20000,
+	"atac.spr.mem_mb": 24000,
+	"atac.xcor.mem_mb": 20000,
+	"atac.macs2_mem_mb": 32000,
+	"atac.qc_report.name": "ENCSR117PYB_thehatchallenge",
+	"atac.qc_report.desc": "ENCSR117PYB atac experiment for the ENCODE DCC internal pipeline run challenge"	
+}
