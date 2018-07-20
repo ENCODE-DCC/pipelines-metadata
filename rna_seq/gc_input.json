@@ -1,0 +1,17 @@
+{
+    "rna.fastqs_R1" : ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz", "g
+s://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz"],
+    "rna.fastqs_R2" : ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_2/ENCFF857ACA.fastq.gz", "g
+s://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_2/ENCFF617GKY.fastq.gz"],
+    "rna.aligner" : "star",
+    "rna.index" : "gs://pipeline_challenge_bucket/RNA/reference/ENCFF742NER.tar.gz",
+    "rna.endedness" : "paired",
+    "rna.align_ncpus" : 16,
+    "rna.align_ramGB" : 120,
+    "rna.disks": "local-disk 200 HDD",
+    "rna.bamroot" : "ENCSR142YZV",
+    "rna.strandedness" : "unstranded",
+    "rna.strandedness_direction" : "unstranded",
+    "rna.chrom_sizes" : "gs://pipeline_challenge_bucket/RNA/reference/GRCh38_EBV.chrom.sizes.tsv",
+    "rna.rsem_index" : "gs://pipeline_challenge_bucket/RNA/reference/ENCFF940AZB.tar.gz"
+}

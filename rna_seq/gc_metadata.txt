@@ -1,0 +1,278 @@
+{
+  "workflowName": "rna",
+  "actualWorkflowLanguageVersion": "draft-2",
+  "submittedFiles": {
+    "workflow": "# ENCODE DCC RNA-seq pipeline\n# Maintainer: Otto Jolanki\n\nworkflow rna {\n    # endedness: pair
+ed or single\n    String endedness\n    # fastqs_R1: fastq.gz files for Read1 (only these if single-ended)\n    Arr
+ay[File] fastqs_R1\n    # fastqs_R2: fastq.gz files for Read2 (omit if single-ended) in order\n    # corresponding 
+to fastqs_R1\n    Array[File] fastqs_R2 = [] \n    # aligner: star for now, more added if/when needed\n    String a
+ligner\n    # index: aligner index (tar.gz)\n    File index\n    # bamroot: root name for output bams. For example 
+foo_bar will\n    # create foo_bar_genome.bam and foo_bar_anno.bam\n    String bamroot \n    # strandedness: is the
+ library strand specific (stranded or unstranded)\n    String strandedness \n    # strandedness_direction (forward,
+ reverse, unstranded)\n    String strandedness_direction\n    # chrom_sizes: chromosome sizes file\n    File chrom_
+sizes \n    # rsem_index: location of the RSEM index archive (tar.gz)\n    File rsem_index\n    # rnd_seed: random 
+seed used for rsem\n    Int rnd_seed = 12345\n    # indexdir: where to extract the star index, relative to cwd\n   
+ String? indexdir\n    # libraryid: identifier which will be added to bam headers\n    String? libraryid\n\n    Int
+ align_ncpus\n\n    Int align_ramGB\n\n    Array[Array[File]] fastqs_ = if length(fastqs_R2)>0 then transpose([fast
+qs_R1, fastqs_R2]) else transpose([fastqs_R1])\n\n    scatter (i in range(length(fastqs_))) {\n        call align {
+ input:\n            endedness = endedness,\n            fastqs = fastqs_[i],\n            index = index,\n        
+    aligner = aligner,\n            indexdir = indexdir,\n            libraryid = libraryid,\n            bamroot =
+ \"rep\"+(i+1)+bamroot,\n            ncpus = align_ncpus,\n            ramGB = align_ramGB,\n        }\n\n        c
+all bam_to_signals as genome_signal { input:\n            input_bam = align.genomebam,\n            chrom_sizes = c
+hrom_sizes,\n            strandedness = strandedness,\n            bamroot = \"rep\"+(i+1)+bamroot+\"_genome\",\n  
+      }\n\n        call rsem_quant { input:\n            rsem_index = rsem_index,\n            rnd_seed = rnd_seed,
+\n            anno_bam = align.annobam,\n            endedness = endedness,\n            read_strand = strandedness
+_direction,\n            ncpus = align_ncpus,\n            ramGB = align_ramGB,\n        }\n    }\n}\n\n\n    ## ta
+sks\n    task align {\n        Array[File] fastqs\n        String endedness\n        String aligner\n        File i
+ndex\n        String? indexdir\n        String? libraryid\n        String bamroot\n        Int ncpus\n        Int r
+amGB\n\n        command {\n            python3 $(which align.py) \\\n                ${if length(fastqs)<2 then \"-
+-fastqs \" + fastqs[0] else \"--fastqs \" + fastqs[0] + \" \" + fastqs[1]} \\\n                --endedness ${endedn
+ess} \\\n                --aligner ${aligner} \\\n                --index ${index} \\\n                ${\"--indexd
+ir \" + indexdir} \\\n                ${\"--libraryid \" + libraryid} \\\n                ${\"--bamroot \" + bamroo
+t} \\\n                ${\"--ncpus \" + ncpus} \\\n                ${\"--ramGB \" + ramGB}\n        }\n\n        ou
+tput {\n            File genomebam = glob(\"*_genome.bam\")[0]\n            File annobam = glob(\"*_anno.bam\")[0]\
+n            File genome_flagstat = glob(\"*_genome_flagstat.txt\")[0]\n            File anno_flagstat = glob(\"*_a
+nno_flagstat.txt\")[0]\n            File log = glob(\"*_Log.final.out\")[0]\n        }\n\n        runtime {\n      
+    docker : \"quay.io/encode-dcc/rna-seq-pipeline:latest\"\n          dx_instance_type : \"mem3_ssd1_x16\"\n      
+  }\n    }\n\n    task  bam_to_signals {\n        File input_bam\n        File chrom_sizes\n        String stranded
+ness\n        String bamroot\n\n        command {\n            python3 $(which bam_to_signals.py) \\\n             
+   --bamfile ${input_bam} \\\n                --chrom_sizes ${chrom_sizes} \\\n                --strandedness ${str
+andedness} \\\n                --bamroot ${bamroot}\n        }\n\n        output {\n            Array[File] unique 
+= glob(\"*niq.bw\")\n            Array[File] all = glob(\"*ll.bw\")\n        }\n\n        runtime {\n            do
+cker : \"quay.io/encode-dcc/rna-seq-pipeline:latest\"\n            dx_instance_type : \"mem3_ssd1_x16\"\n        }\
+n    }\n\n    task rsem_quant {\n        File rsem_index\n        File anno_bam\n        String endedness\n        
+String read_strand\n        Int rnd_seed\n        Int ncpus\n        Int ramGB\n\n        command {\n            py
+thon3 $(which rsem_quant.py) \\\n                --rsem_index ${rsem_index} \\\n                --anno_bam ${anno_b
+am} \\\n                --endedness ${endedness} \\\n                --read_strand ${read_strand} \\\n                --rnd_seed ${rnd_seed} \\\n                --ncpus ${ncpus} \\\n                --ramGB ${ramGB}\n        }\n\n        output {\n            File genes_results = glob(\"*.genes.results\")[0]\n            File isoforms_results = glob(\"*.isoforms.results\")[0]\n        }\n\n        runtime {\n            docker : \"quay.io/encode-dcc/rna-seq-pipeline:latest\"\n            dx_instance_type : \"mem3_ssd1_x16\"\n        }\n    }\n",
+    "root": "None",
+    "options": "{\n  \"default_runtime_attributes\": {\n    \"docker\": \"quay.io/encode-dcc/rna-seq-pipeline:latest\",\n    \"cpu\": \"1\",\n    \"memory\": \"4 GB\"\n  }\n}",
+    "inputs": "{\n    \"rna.fastqs_R1\" : [\"gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz\", \"gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz\"],\n    \"rna.fastqs_R2\" : [\"gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_2/ENCFF857ACA.fastq.gz\", \"gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_2/ENCFF617GKY.fastq.gz\"],\n    \"rna.aligner\" : \"star\",\n    \"rna.index\" : \"gs://pipeline_challenge_bucket/RNA/reference/ENCFF742NER.tar.gz\",\n    \"rna.endedness\" : \"paired\",\n    \"rna.align_ncpus\" : 16,\n    \"rna.align_ramGB\" : 120,\n    \"rna.disks\": \"local-disk 200 HDD\",\n    \"rna.bamroot\" : \"ENCSR142YZV\",\n    \"rna.strandedness\" : \"unstranded\",\n    \"rna.strandedness_direction\" : \"unstranded\",\n    \"rna.chrom_sizes\" : \"gs://pipeline_challenge_bucket/RNA/reference/GRCh38_EBV.chrom.sizes.tsv\",\n    \"rna.rsem_index\" : \"gs://pipeline_challenge_bucket/RNA/reference/ENCFF940AZB.tar.gz\"\n}",
+    "labels": "{}"
+  },
+  "calls": {
+    "rna.align": [{
+      "preemptible": false,
+      "retryableFailure": false,
+      "executionStatus": "Failed",
+      "stdout": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-0/stdout",
+      "backendStatus": "Failed",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution",
+        "zone": "us-central1-b",
+        "instanceName": "ggp-3708409501951002880"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 10 SSD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/rna-seq-pipeline:latest",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "ncpus": 16,
+        "fastqs": ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz", "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_2/ENCFF857ACA.fastq.gz"],
+        "endedness": "paired",
+        "ramGB": 120,
+        "aligner": "star",
+        "libraryid": null,
+        "indexdir": null,
+        "bamroot": "rep1ENCSR142YZV",
+        "index": "gs://pipeline_challenge_bucket/RNA/reference/ENCFF742NER.tar.gz"
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-dd75f756-c358-4f94-bac4-1e7e14609da4",
+        "wdl-task-name": "align"
+      },
+      "labels": {
+        "wdl-task-name": "align",
+        "cromwell-workflow-id": "cromwell-dd75f756-c358-4f94-bac4-1e7e14609da4"
+      },
+      "failures": [{
+        "causedBy": [],
+        "message": "Task rna.align:0:1 failed. The job was stopped before the command finished. PAPI error code 5. 9: Failed to localize files: failed to make local directory for /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz: mkdir /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV: no space left on device"
+      }],
+      "jobId": "operations/EOy-ysXLLBiAkuSrtNm6uzMgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T17:41:13.355Z",
+      "stderr": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "startTime": "2018-07-20T17:17:27.900Z",
+        "description": "Pending",
+        "endTime": "2018-07-20T17:17:27.924Z"
+      }, {
+        "endTime": "2018-07-20T17:41:13.353Z",
+        "startTime": "2018-07-20T17:41:13.352Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "startTime": "2018-07-20T17:17:27.924Z",
+        "description": "RequestingExecutionToken",
+        "endTime": "2018-07-20T17:17:28.630Z"
+      }, {
+        "startTime": "2018-07-20T17:17:28.630Z",
+        "description": "WaitingForValueStore",
+        "endTime": "2018-07-20T17:17:28.645Z"
+      }, {
+        "endTime": "2018-07-20T17:41:13.352Z",
+        "startTime": "2018-07-20T17:17:29.012Z",
+        "description": "RunningJob"
+      }, {
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T17:17:28.645Z",
+        "endTime": "2018-07-20T17:17:29.012Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-0/align-0.log"
+      },
+      "start": "2018-07-20T17:17:27.877Z"
+    }, {
+      "preemptible": false,
+      "retryableFailure": false,
+      "executionStatus": "Failed",
+      "stdout": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-1/stdout",
+      "backendStatus": "Failed",
+      "shardIndex": 1,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution",
+        "zone": "us-central1-b",
+        "instanceName": "ggp-15645054868716395443"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 10 SSD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/rna-seq-pipeline:latest",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "ncpus": 16,
+        "fastqs": ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz", "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_2/ENCFF617GKY.fastq.gz"],
+        "endedness": "paired",
+        "ramGB": 120,
+        "aligner": "star",
+        "libraryid": null,
+        "indexdir": null,
+        "bamroot": "rep2ENCSR142YZV",
+        "index": "gs://pipeline_challenge_bucket/RNA/reference/ENCFF742NER.tar.gz"
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-dd75f756-c358-4f94-bac4-1e7e14609da4",
+        "wdl-task-name": "align"
+      },
+      "labels": {
+        "wdl-task-name": "align",
+        "cromwell-workflow-id": "cromwell-dd75f756-c358-4f94-bac4-1e7e14609da4"
+      },
+      "failures": [{
+        "message": "Task rna.align:1:1 failed. The job was stopped before the command finished. PAPI error code 5. 9: Failed to localize files: failed to make local directory for /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz: mkdir /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1: no space left on device",
+        "causedBy": []
+      }],
+      "jobId": "operations/EOa-ysXLLBizt9iqsdCZj9kBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T17:37:19.870Z",
+      "stderr": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-1/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-1",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T17:17:28.642Z",
+        "startTime": "2018-07-20T17:17:28.638Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T17:17:27.925Z",
+        "endTime": "2018-07-20T17:17:28.638Z"
+      }, {
+        "endTime": "2018-07-20T17:37:19.869Z",
+        "description": "RunningJob",
+        "startTime": "2018-07-20T17:17:29.013Z"
+      }, {
+        "endTime": "2018-07-20T17:17:29.013Z",
+        "startTime": "2018-07-20T17:17:28.642Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-20T17:37:19.882Z",
+        "startTime": "2018-07-20T17:37:19.869Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "description": "Pending",
+        "startTime": "2018-07-20T17:17:27.896Z",
+        "endTime": "2018-07-20T17:17:27.925Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/call-align/shard-1/align-1.log"
+      },
+      "start": "2018-07-20T17:17:27.869Z"
+    }]
+  },
+  "outputs": {
+
+  },
+  "workflowRoot": "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/execution/rna/dd75f756-c358-4f94-bac4-1e7e14609da4/",
+  "actualWorkflowLanguage": "WDL",
+  "id": "dd75f756-c358-4f94-bac4-1e7e14609da4",
+  "inputs": {
+    "rna.align_ncpus": 16,
+    "rna.endedness": "paired",
+    "rna.rnd_seed": 12345,
+    "rna.aligner": "star",
+    "rna.align_ramGB": 120,
+    "rna.rsem_index": "gs://pipeline_challenge_bucket/RNA/reference/ENCFF940AZB.tar.gz",
+    "rna.indexdir": null,
+    "rna.fastqs_R2": ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_2/ENCFF857ACA.fastq.gz", "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_2/ENCFF617GKY.fastq.gz"],
+    "rna.chrom_sizes": "gs://pipeline_challenge_bucket/RNA/reference/GRCh38_EBV.chrom.sizes.tsv",
+    "rna.libraryid": null,
+    "rna.strandedness_direction": "unstranded",
+    "rna.strandedness": "unstranded",
+    "rna.bamroot": "ENCSR142YZV",
+    "rna.fastqs_R1": ["gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz", "gs://pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz"],
+    "rna.index": "gs://pipeline_challenge_bucket/RNA/reference/ENCFF742NER.tar.gz"
+  },
+  "labels": {
+    "cromwell-workflow-id": "cromwell-dd75f756-c358-4f94-bac4-1e7e14609da4"
+  },
+  "submission": "2018-07-20T17:17:17.946Z",
+  "status": "Failed",
+  "failures": [{
+    "causedBy": [{
+      "causedBy": [],
+      "message": "Task rna.align:1:1 failed. The job was stopped before the command finished. PAPI error code 5. 9: Failed to localize files: failed to make local directory for /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1/ENCFF412OOM.fastq.gz: mkdir /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_3/read_1: no space left on device"
+    }, {
+      "message": "Task rna.align:0:1 failed. The job was stopped before the command finished. PAPI error code 5. 9: Failed to localize files: failed to make local directory for /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV/replicate_1/read_1/ENCFF920XOR.fastq.gz: mkdir /mnt/local-disk/pipeline_challenge_bucket/RNA/ENCSR142YZV: no space left on device",
+      "causedBy": []
+    }],
+    "message": "Workflow failed"
+  }],
+  "end": "2018-07-20T17:41:13.848Z",
+  "start": "2018-07-20T17:17:18.272Z"
