@@ -1,0 +1,2414 @@
+{
+  "workflowName": "atac",
+  "actualWorkflowLanguageVersion": "draft-2",
+  "submittedFiles": {
+    "workflow": "# ENCODE DCC ATAC-Seq/DNase-Seq pipeline\n# Author: Jin Lee (leepc12@gmail.com)\n\nworkflow atac {
+\n\t#### input file definition\n\t\t# pipeline can start from any type of inputs and then leave all other types und
+efined\n\t\t# supported types: fastq, bam, nodup_bam (filtered bam), ta (tagAlign), peak\n\t\t# define up to 6 repl
+icates\n\t\t# [rep_id] is for each replicate\n\n \t### fastqs and adapters  \t\n\t \t# define fastqs either with DN
+ANexus style (1-dim array) or with default one (3-dim array)\n\t \t# [merge_id] is for pooing fastqs after trimming
+ adapters\n\t \t# if adapters defined with any style, keep the same structure/dimension as fastq arrays\n\t \t# onl
+y defined adapters will be trimmed\n\t \t# or undefined adapters will be detected/trimmed by trim_adapter.auto_dete
+ct_adapter=true \n\t \t# so you can selectively detect/trim adapters for a specific fastq\n \t## DNANexus UI style 
+fastq/adapter definition\n\tArray[File] fastqs_rep1_R1 = []\t# [merge_id]\n\tArray[File] fastqs_rep1_R2 = [] # do n
+ot define _R2 array if your sample is not paired end\n\tArray[File] fastqs_rep2_R1 = [] # do not define if you have
+ a single replicate\n\tArray[File] fastqs_rep2_R2 = []\t# do not define _R2 array if your sample is not paired end\
+n\tArray[File] fastqs_rep3_R1 = [] # do not define if you have <=2 replicates\n\tArray[File] fastqs_rep3_R2 = []\t#
+ do not define _R2 array if your sample is not paired end\n\tArray[File] fastqs_rep4_R1 = [] # do not define if you
+ have <=3 replicates\n\tArray[File] fastqs_rep4_R2 = []\t# do not define _R2 array if your sample is not paired end
+\n\tArray[File] fastqs_rep5_R1 = [] # do not define if you have <=4 replicates\n\tArray[File] fastqs_rep5_R2 = []\t
+# do not define _R2 array if your sample is not paired end\n\tArray[File] fastqs_rep6_R1 = [] # do not define if yo
+u have <=5 replicates\n\tArray[File] fastqs_rep6_R2 = []\t# do not define _R2 array if your sample is not paired en
+d\n\tArray[String] adapters_rep1_R1 = [] # [merge_id]\n\tArray[String] adapters_rep1_R2 = [] \n\tArray[String] adap
+ters_rep2_R1 = []\n\tArray[String] adapters_rep2_R2 = []\n\tArray[String] adapters_rep3_R1 = []\n\tArray[String] ad
+apters_rep3_R2 = []\n\tArray[String] adapters_rep4_R1 = []\n\tArray[String] adapters_rep4_R2 = []\n\tArray[String] 
+adapters_rep5_R1 = []\n\tArray[String] adapters_rep5_R2 = []\n\tArray[String] adapters_rep6_R1 = []\n\tArray[String
+] adapters_rep6_R2 = []\n \t## default style fastq/adapter definition\n \t\t# [read_end_id] is for fastq R1 or fastq R2\n\tArray[Array[Array[File]]] fastqs = [] \t# [rep_id][merge_id][read_end_id]\n\tArray[Array[Array[File]]] adapters = []\t# [rep_id][merge_id][read_end_id]\n\n\t### other input types (bam, nodup_bam, ta)\n\tArray[File] bams = [] \t\t# [rep_id]\n\tArray[File] nodup_bams = [] # [rep_id]\n\tArray[File] tas = []\t\t# [rep_id]\n\n\t### other input types (peak)\n\tArray[File] peaks = []\t\t# [PAIR(rep_id1,rep_id2)]. example for 3 reps: [rep1_rep2, rep1_rep3, rep2_rep3]\n\tArray[File] peaks_pr1 = []\t# [rep_id]. do not define if true_rep=true\n\tArray[File] peaks_pr2 = []\t# [rep_id]. do not define if true_rep=true\n\tFile? peak_ppr1\t\t\t\t# do not define if you have a single replicate or true_rep=true\n\tFile? peak_ppr2\t\t\t\t# do not define if you have a single replicate or true_rep=true\n\tFile? peak_pooled\t\t\t# do not define if you have a single replicate or true_rep=true\n\n\t### pipeline type\n\tString pipeline_type  \t# ATAC-Seq (atac) or DNase-Seq (dnase)\n\t\t\t\t\t\t\t# the only difference is that tn5 shiting is enabled for atac\n\n\t### mandatory genome param\n\tFile genome_tsv \t\t# reference genome data TSV file including\n\t\t\t\t\t\t\t# all important genome specific data file paths and parameters\n\tBoolean paired_end\n\n\t### optional but important\n\tBoolean align_only = false\t\t# disable all post-align analysis (peak-calling, overlap, idr, ...)\n\tBoolean true_rep_only = false \t# disable all analyses for pseudo replicates\n\t\t\t\t\t\t\t\t\t# overlap and idr will also be disabled\n\tBoolean disable_xcor = false \t# disable cross-correlation analysis\n\tInt multimapping = 0\t\t\t# for multimapping reads\n\tBoolean disable_ataqc = false\n\n\t### task-specific variables but defined in workflow level (limit of WDL)\n\t## optional for MACS2 \n\tInt cap_num_peak = 300000\t# cap number of raw peaks called from MACS2\n\tFloat pval_thresh = 0.01\t# p.value threshold\n\tInt smooth_win = 150\t\t# size of smoothing window\n\tInt? macs2_mem_mb \t\t\t# resource (memory in MB)\n\tInt? macs2_time_hr\t\t\t# resource (walltime in hour)\n\tString? macs2_disks \t\t# resource disks for cloud platforms\n\t## optional for IDR\n\tBoolean enable_idr = false \t# enable IDR analysis on raw peaks\n\tFloat idr_thresh = 0.1\t\t# IDR threshold\n\n\t### temp vars (do not define these)\n\tString peak_type = 'narrowPeak' # peak type for IDR and overlap\n\tString idr_rank = 'p.value' # IDR ranking method\n\n\t### read genome data and paths\n\tcall read_genome_tsv { input:genome_tsv = genome_tsv }\n\tFile bowtie2_idx_tar = read_genome_tsv.genome['bowtie2_idx_tar']\n\tFile blacklist = read_genome_tsv.genome['blacklist']\n\tFile chrsz = read_genome_tsv.genome['chrsz']\n\tString gensz = read_genome_tsv.genome['gensz']\n\tFile ref_fa = read_genome_tsv.genome['ref_fa']\n\t# genome data for ATAQC\n\tFile tss_enrich = read_genome_tsv.genome['tss_enrich']\n\tFile dnase = read_genome_tsv.genome['dnase']\n\tFile prom = read_genome_tsv.genome['prom']\n\tFile enh = read_genome_tsv.genome['enh']\n\tFile reg2map = read_genome_tsv.genome['reg2map']\n\tFile reg2map_bed = read_genome_tsv.genome['reg2map_bed']\n\tFile roadmap_meta = read_genome_tsv.genome['roadmap_meta']\n\n\t### pipeline starts here\n\t# temporary 2-dim arrays for DNANexus style fastqs and adapters\t\n\tArray[Array[File]] fastqs_rep1 = if length(fastqs_rep1_R2)>0 then transpose([fastqs_rep1_R1,fastqs_rep1_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep1_R1])\n\tArray[Array[File]] fastqs_rep2 = if length(fastqs_rep2_R2)>0 then transpose([fastqs_rep2_R1,fastqs_rep2_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep2_R1])\n\tArray[Array[File]] fastqs_rep3 = if length(fastqs_rep3_R2)>0 then transpose([fastqs_rep3_R1,fastqs_rep3_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep3_R1])\n\tArray[Array[File]] fastqs_rep4 = if length(fastqs_rep4_R2)>0 then transpose([fastqs_rep4_R1,fastqs_rep4_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep4_R1])\n\tArray[Array[File]] fastqs_rep5 = if length(fastqs_rep5_R2)>0 then transpose([fastqs_rep5_R1,fastqs_rep5_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep5_R1])\n\tArray[Array[File]] fastqs_rep6 = if length(fastqs_rep6_R2)>0 then transpose([fastqs_rep6_R1,fastqs_rep6_R2])\n\t\t\t\t\t\t\t\t\telse transpose([fastqs_rep6_R1])\n\tArray[Array[String]] adapters_rep1 = if length(adapters_rep1_R2)>0 then transpose([adapters_rep1_R1,adapters_rep1_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep1_R1])\n\tArray[Array[String]] adapters_rep2 = if length(adapters_rep2_R2)>0 then transpose([adapters_rep2_R1,adapters_rep2_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep2_R1])\n\tArray[Array[String]] adapters_rep3 = if length(adapters_rep3_R2)>0 then transpose([adapters_rep3_R1,adapters_rep3_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep3_R1])\n\tArray[Array[String]] adapters_rep4 = if length(adapters_rep4_R2)>0 then transpose([adapters_rep4_R1,adapters_rep4_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep4_R1])\n\tArray[Array[String]] adapters_rep5 = if length(adapters_rep5_R2)>0 then transpose([adapters_rep5_R1,adapters_rep5_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep5_R1])\n\tArray[Array[String]] adapters_rep6 = if length(adapters_rep6_R2)>0 then transpose([adapters_rep6_R1,adapters_rep6_R2])\n\t\t\t\t\t\t\t\t\telse transpose([adapters_rep6_R1])\n\n\tArray[Array[Array[File]]] fastqs_ = if length(fastqs_rep1)<1 then fastqs\n\t\telse if length(fastqs_rep2)<1 then [fastqs_rep1]\n\t\telse if length(fastqs_rep3)<1 then [fastqs_rep1,fastqs_rep2]\n\t\telse if length(fastqs_rep4)<1 then [fastqs_rep1,fastqs_rep2,fastqs_rep3]\n\t\telse if length(fastqs_rep5)<1 then [fastqs_rep1,fastqs_rep2,fastqs_rep3,fastqs_rep4]\n\t\telse if length(fastqs_rep6)<1 then [fastqs_rep1,fastqs_rep2,fastqs_rep3,fastqs_rep4,fastqs_rep5]\n\t\telse [fastqs_rep1,fastqs_rep2,fastqs_rep3,fastqs_rep4,fastqs_rep5,fastqs_rep6]\n\tArray[Array[Array[String]]] adapters_ = if length(adapters_rep1)<1 then adapters\n\t\telse if length(adapters_rep2)<1 then [adapters_rep1]\n\t\telse if length(adapters_rep3)<1 then [adapters_rep1,adapters_rep2]\n\t\telse if length(adapters_rep4)<1 then [adapters_rep1,adapters_rep2,adapters_rep3]\n\t\telse if length(adapters_rep5)<1 then [adapters_rep1,adapters_rep2,adapters_rep3,adapters_rep4]\n\t\telse if length(adapters_rep6)<1 then [adapters_rep1,adapters_rep2,adapters_rep3,adapters_rep4,adapters_rep5]\n\t\telse [adapters_rep1,adapters_rep2,adapters_rep3,adapters_rep4,adapters_rep5,adapters_rep6]\n\n\tscatter( i in range(length(fastqs_)) ) {\n\t\t# trim adapters and merge trimmed fastqs\n\t\tcall trim_adapter { input :\n\t\t\tfastqs = fastqs_[i],\n\t\t\tadapters = if length(adapters_)>0 then adapters_[i] else [],\n\t\t\tpaired_end = paired_end,\n\t\t}\n\t\t# align trimmed/merged fastqs with bowtie2s\n\t\tcall bowtie2 { input :\n\t\t\tidx_tar = bowtie2_idx_tar,\n\t\t\tfastqs = trim_adapter.trimmed_merged_fastqs, #[R1,R2]\n\t\t\tpaired_end = paired_end,\n\t\t\tmultimapping = multimapping,\n\t\t}\n\t}\n\n\tArray[File] bams_ = flatten([bowtie2.bam, bams])\n\tscatter( bam in bams_ ) {\n\t\t# filter/dedup bam\n\t\tcall filter { input :\n\t\t\tbam = bam,\n\t\t\tpaired_end = paired_end,\n\t\t\tmultimapping = multimapping,\n\t\t}\n\t}\n\n\tArray[File] nodup_bams_ = flatten([filter.nodup_bam, nodup_bams])\n\tscatter( bam in nodup_bams_ ) {\n\t\t# convert bam to tagalign and subsample it if necessary\n\t\tcall bam2ta { input :\n\t\t\tbam = bam,\n\t\t\tdisable_tn5_shift = if pipeline_type=='atac' then false else true,\n\t\t\tpaired_end = paired_end,\n\t\t}\n\t}\n\n\tArray[File] tas_ = if align_only then [] else flatten([bam2ta.ta, tas])\n\tscatter( ta in tas_ ) {\n\t\t# call peaks on tagalign\n\t\tcall macs2 { input :\n\t\t\tta = ta,\n\t\t\tgensz = gensz,\n\t\t\tchrsz = chrsz,\n\t\t\tcap_num_peak = cap_num_peak,\n\t\t\tpval_thresh = pval_thresh,\n\t\t\tsmooth_win = smooth_win,\n\t\t\tmake_signal = true,\n\t\t\tblacklist = blacklist,\n\t\t\t# resource\n\t\t\tmem_mb = macs2_mem_mb,\n\t\t\tdisks = macs2_disks,\n\t\t\ttime_hr = macs2_time_hr,\n\t\t}\n\t}\n\tif ( length(tas_)>1 ) {\n\t\t# pool tagaligns from true replicates\n\t\tcall pool_ta { input :\n\t\t\ttas = tas_,\n\t\t}\n\t\t# call peaks on pooled replicate\n\t\tcall macs2 as macs2_pooled { input :\n\t\t\tta = pool_ta.ta_pooled,\n\t\t\tgensz = gensz,\n\t\t\tchrsz = chrsz,\n\t\t\tcap_num_peak = cap_num_peak,\n\t\t\tpval_thresh = pval_thresh,\n\t\t\tsmooth_win = smooth_win,\n\t\t\tmake_signal = true,\n\t\t\tblacklist = blacklist,\n\t\t\t# resource\n\t\t\tmem_mb = macs2_mem_mb,\n\t\t\tdisks = macs2_disks,\n\t\t\ttime_hr = macs2_time_hr,\n\t\t}\n\t}\n\tif ( !disable_xcor ) {\n\t\tscatter( ta in tas_ ) {\n\t\t\t# subsample tagalign (non-mito) and cross-correlation analysis\n\t\t\tcall xcor { input :\n\t\t\t\tta = ta,\n\t\t\t\tpaired_end = paired_end,\n\t\t\t}\n\t\t}\n\t}\n\n\tif ( !true_rep_only ) {\n\t\tscatter( ta in tas_ ) {\n\t\t\t# make two self pseudo replicates per true replicate\n\t\t\tcall spr { input :\n\t\t\t\tta = ta,\n\t\t\t\tpaired_end = paired_end,\n\t\t\t}\n\t\t\t# call peaks on 1st pseudo replicated tagalign \n\t\t\tcall macs2 as macs2_pr1 { input :\n\t\t\t\tta = spr.ta_pr1,\n\t\t\t\tgensz = gensz,\n\t\t\t\tchrsz = chrsz,\n\t\t\t\tcap_num_peak = cap_num_peak,\n\t\t\t\tpval_thresh = pval_thresh,\n\t\t\t\tsmooth_win = smooth_win,\n\t\t\t\tblacklist = blacklist,\n\t\t\t\t# resource\n\t\t\t\tmem_mb = macs2_mem_mb,\n\t\t\t\tdisks = macs2_disks,\n\t\t\t\ttime_hr = macs2_time_hr,\n\t\t\t}\n\t\t\t# call peaks on 2nd pseudo replicated tagalign \n\t\t\tcall macs2 as macs2_pr2 { input :\n\t\t\t\tta = spr.ta_pr2,\n\t\t\t\tgensz = gensz,\n\t\t\t\tchrsz = chrsz,\n\t\t\t\tcap_num_peak = cap_num_peak,\n\t\t\t\tpval_thresh = pval_thresh,\n\t\t\t\tsmooth_win = smooth_win,\n\t\t\t\tblacklist = blacklist,\n\t\t\t\t# resource\n\t\t\t\tmem_mb = macs2_mem_mb,\n\t\t\t\tdisks = macs2_disks,\n\t\t\t\ttime_hr = macs2_time_hr,\n\t\t\t}\n\t\t}\n\t}\n\n\tif ( !true_rep_only && length(tas_)>1 ) {\n\t\t# pool tagaligns from pseudo replicates\n\t\tcall pool_ta as pool_ta_pr1 { input :\n\t\t\ttas = spr.ta_pr1,\n\t\t}\n\t\tcall pool_ta as pool_ta_pr2 { input :\n\t\t\ttas = spr.ta_pr2,\n\t\t}\n\t\t# call peaks on 1st pooled pseudo replicates\n\t\tcall macs2 as macs2_ppr1 { input :\n\t\t\tta = pool_ta_pr1.ta_pooled,\n\t\t\tgensz = gensz,\n\t\t\tchrsz = chrsz,\n\t\t\tcap_num_peak = cap_num_peak,\n\t\t\tpval_thresh = pval_thresh,\n\t\t\tsmooth_win = smooth_win,\n\t\t\tblacklist = blacklist,\n\t\t\t# resource\n\t\t\tmem_mb = macs2_mem_mb,\n\t\t\tdisks = macs2_disks,\n\t\t\ttime_hr = macs2_time_hr,\n\t\t}\n\t\t# call peaks on 2nd pooled pseudo replicates\n\t\tcall macs2 as macs2_ppr2 { input :\n\t\t\tta = pool_ta_pr2.ta_pooled,\n\t\t\tgensz = gensz,\n\t\t\tchrsz = chrsz,\n\t\t\tcap_num_peak = cap_num_peak,\n\t\t\tpval_thresh = pval_thresh,\n\t\t\tsmooth_win = smooth_win,\n\t\t\tblacklist = blacklist,\n\t\t\t# resource\n\t\t\tmem_mb = macs2_mem_mb,\n\t\t\tdisks = macs2_disks,\n\t\t\ttime_hr = macs2_time_hr,\n\t\t}\n\t}\n\n\t# make peak arrays\n\tArray[File] peaks_ = flatten([macs2.npeak, peaks])\n\n\t# generate all possible pairs of true replicates (pair: left=prefix, right=[peak1,peak2])\n\tArray[Pair[String,Array[File]]] peak_pairs =  \n\t\tif length(peaks_)<=1 then [] # 1 rep\n\t\telse if length(peaks_)<=2 then # 2 reps\n\t\t\t [('rep1-rep2',[peaks_[0],peaks_[1]])]\n\t\telse if length(peaks_)<=3 then # 3 reps\n\t\t\t [('rep1-rep2',[peaks_[0],peaks_[1]]), ('rep1-rep3',[peaks_[0],peaks_[2]]),\n\t\t\t  ('rep2-rep3',[peaks_[1],peaks_[2]])]\n\t\telse if length(peaks_)<=4 then # 4 reps\n\t\t\t [('rep1-rep2',[peaks_[0],peaks_[1]]), ('rep1-rep3',[peaks_[0],peaks_[2]]), ('rep1-rep4',[peaks_[0],peaks_[3]]),\n\t\t\t  ('rep2-rep3',[peaks_[1],peaks_[2]]), ('rep2-rep4',[peaks_[1],peaks_[3]]),\n\t\t\t  ('rep3-rep4',[peaks_[2],peaks_[3]])]\n\t\telse if length(peaks_)<=5 then # 5 reps\n\t\t\t [('rep1-rep2',[peaks_[0],peaks_[1]]), ('rep1-rep3',[peaks_[0],peaks_[2]]), ('rep1-rep4',[peaks_[0],peaks_[3]]), ('rep1-rep5',[peaks_[0],peaks_[4]]),\n\t\t\t  ('rep2-rep3',[peaks_[1],peaks_[2]]), ('rep2-rep4',[peaks_[1],peaks_[3]]), ('rep2-rep5',[peaks_[1],peaks_[4]]),\n\t\t\t  ('rep3-rep4',[peaks_[2],peaks_[3]]), ('rep3-rep5',[peaks_[2],peaks_[4]]),\n\t\t\t  ('rep4-rep5',[peaks_[3],peaks_[4]])]\n\t\telse # 6 reps\n\t\t\t [('rep1-rep2',[peaks_[0],peaks_[1]]), ('rep1-rep3',[peaks_[0],peaks_[2]]), ('rep1-rep4',[peaks_[0],peaks_[3]]), ('rep1-rep5',[peaks_[0],peaks_[4]]), ('rep1-rep6',[peaks_[0],peaks_[5]]),\n\t\t\t  ('rep2-rep3',[peaks_[1],peaks_[2]]), ('rep2-rep4',[peaks_[1],peaks_[3]]), ('rep2-rep5',[peaks_[1],peaks_[4]]), ('rep2-rep6',[peaks_[1],peaks_[5]]),\n\t\t\t  ('rep3-rep4',[peaks_[2],peaks_[3]]), ('rep3-rep5',[peaks_[2],peaks_[4]]), ('rep3-rep6',[peaks_[2],peaks_[5]]),\n\t\t\t  ('rep4-rep5',[peaks_[3],peaks_[4]]), ('rep4-rep6',[peaks_[3],peaks_[5]]),\n\t\t\t  ('rep5-rep6',[peaks_[4],peaks_[5]])]\n\tscatter( pair in peak_pairs ) {\n\t\t# Naive overlap on every pair of true replicates\n\t\tcall overlap { input :\n\t\t\tprefix = pair.left,\n\t\t\tpeak1 = pair.right[0],\n\t\t\tpeak2 = pair.right[1],\n\t\t\tpeak_pooled = select_first([macs2_pooled.npeak, peak_pooled]),\n\t\t\tpeak_type = peak_type,\n\t\t\tblacklist = blacklist,\n\t\t\tchrsz = chrsz,\n\t\t\tta = pool_ta.ta_pooled,\n\t\t}\n\t}\n\tif ( enable_idr ) {\n\t\tscatter( pair in peak_pairs ) {\n\t\t\t# IDR on every pair of true replicates\n\t\t\tcall idr { input : \n\t\t\t\tprefix = pair.left,\n\t\t\t\tpeak1 = pair.right[0],\n\t\t\t\tpeak2 = pair.right[1],\n\t\t\t\tpeak_pooled = select_first([macs2_pooled.npeak, peak_pooled]),\n\t\t\t\tidr_thresh = idr_thresh,\n\t\t\t\tpeak_type = peak_type,\n\t\t\t\trank = idr_rank,\n\t\t\t\tblacklist = blacklist,\n\t\t\t\tchrsz = chrsz,\n\t\t\t\tta = pool_ta.ta_pooled,\n\t\t\t}\n\t\t}\n\t}\n\n\tArray[File] peaks_pr1_ = select_first([macs2_pr1.npeak, peaks_pr1])\n\tArray[File] peaks_pr2_ = select_first([macs2_pr2.npeak, peaks_pr2])\n\n\tscatter( i in range(length(peaks_pr1_)) ) {\n\t\t# Naive overlap on pseduo replicates\n\t\tcall overlap as overlap_pr { input : \n\t\t\tprefix = \"rep\"+(i+1)+\"-pr\",\n\t\t\tpeak1 = peaks_pr1_[i],\n\t\t\tpeak2 = peaks_pr2_[i],\n\t\t\tpeak_pooled = peaks_[i],\n\t\t\tpeak_type = peak_type,\n\t\t\tblacklist = blacklist,\n\t\t\tchrsz = chrsz,\n\t\t\tta = if length(tas_)>0 then tas_[i] else pool_ta.ta_pooled,\n\t\t}\n\t}\n\tif ( enable_idr ) {\n\t\tscatter( i in range(length(peaks_pr1_)) ) {\n\t\t\t# IDR on pseduo replicates\n\t\t\tcall idr as idr_pr { input : \n\t\t\t\tprefix = \"rep\"+(i+1)+\"-pr\",\n\t\t\t\tpeak1 = peaks_pr1_[i],\n\t\t\t\tpeak2 = peaks_pr2_[i],\n\t\t\t\tpeak_pooled = peaks_[i],\n\t\t\t\tidr_thresh = idr_thresh,\n\t\t\t\tpeak_type = peak_type,\n\t\t\t\trank = idr_rank,\n\t\t\t\tblacklist = blacklist,\n\t\t\t\tchrsz = chrsz,\n\t\t\t\tta = if length(tas_)>0 then tas_[i] else pool_ta.ta_pooled,\n\t\t\t}\n\t\t}\n\t}\n\tif ( length(peaks_pr1_)>1 ) {\n\t\t# Naive overlap on pooled pseudo replicates\n\t\tcall overlap as overlap_ppr { input : \n\t\t\tprefix = \"ppr\",\n\t\t\tpeak1 = select_first([macs2_ppr1.npeak, peak_ppr1]),\n\t\t\tpeak2 = select_first([macs2_ppr2.npeak, peak_ppr2]),\n\t\t\tpeak_pooled = select_first([macs2_pooled.npeak, peak_pooled]),\n\t\t\tpeak_type = peak_type,\n\t\t\tblacklist = blacklist,\n\t\t\tchrsz = chrsz,\n\t\t\tta = pool_ta.ta_pooled,\n\t\t}\n\t}\n\tif ( enable_idr && length(peaks_pr1_)>1  ) {\n\t\t# IDR on pooled pseduo replicates\n\t\tcall idr as idr_ppr { input : \n\t\t\tprefix = \"ppr\",\n\t\t\tpeak1 = select_first([macs2_ppr1.npeak, peak_ppr1]),\n\t\t\tpeak2 = select_first([macs2_ppr2.npeak, peak_ppr2]),\n\t\t\tpeak_pooled = select_first([macs2_pooled.npeak, peak_pooled]),\n\t\t\tidr_thresh = idr_thresh,\n\t\t\tpeak_type = peak_type,\n\t\t\trank = idr_rank,\n\t\t\tblacklist = blacklist,\n\t\t\tchrsz = chrsz,\n\t\t\tta = pool_ta.ta_pooled,\n\t\t}\n\t}\n\tif ( !align_only && !true_rep_only ) {\n\t\t# reproducibility QC for overlapping peaks\n\t\tcall reproducibility as reproducibility_overlap { input :\n\t\t\tprefix = 'overlap',\n\t\t\tpeaks = overlap.bfilt_overlap_peak,\n\t\t\tpeaks_pr = overlap_pr.bfilt_overlap_peak,\n\t\t\tpeak_ppr = overlap_ppr.bfilt_overlap_peak,\n\t\t}\n\t}\n\tif ( !align_only && !true_rep_only && enable_idr ) {\n\t\t# reproducibility QC for IDR peaks\n\t\tcall reproducibility as reproducibility_idr { input :\n\t\t\tprefix = 'idr',\n\t\t\tpeaks = idr.bfilt_idr_peak,\n\t\t\tpeaks_pr = idr_pr.bfilt_idr_peak,\n\t\t\tpeak_ppr = idr_ppr.bfilt_idr_peak,\n\t\t}\n\t}\n\t# Generate final QC report and JSON\t\t\n\tcall qc_report { input :\n\t\tpaired_end = paired_end,\n\t\tpipeline_type = pipeline_type,\n\t\tpeak_caller = 'macs2',\n\t\tidr_thresh = idr_thresh,\n\t\tflagstat_qcs = bowtie2.flagstat_qc,\n\t\tnodup_flagstat_qcs = filter.flagstat_qc,\n\t\tdup_qcs = filter.dup_qc,\n\t\tpbc_qcs = filter.pbc_qc,\n\t\txcor_plots = xcor.plot_png,\n\t\txcor_scores = xcor.score,\n\n\t\tfrip_macs2_qcs = macs2.frip_qc,\n\t\tfrip_macs2_qcs_pr1 = macs2_pr1.frip_qc,\n\t\tfrip_macs2_qcs_pr2 = macs2_pr2.frip_qc,\n\t\tfrip_macs2_qc_pooled = macs2_pooled.frip_qc,\n\t\tfrip_macs2_qc_ppr1 = macs2_ppr1.frip_qc,\n\t\tfrip_macs2_qc_ppr2 = macs2_ppr2.frip_qc,\n\n\t\tidr_plots = idr.idr_plot,\n\t\tidr_plots_pr = idr_pr.idr_plot,\n\t\tidr_plot_ppr = idr_ppr.idr_plot,\n\t\tfrip_idr_qcs = idr.frip_qc,\n\t\tfrip_idr_qcs_pr = idr_pr.frip_qc,\n\t\tfrip_idr_qc_ppr = idr_ppr.frip_qc,\n\t\tfrip_overlap_qcs = overlap.frip_qc,\n\t\tfrip_overlap_qcs_pr = overlap_pr.frip_qc,\n\t\tfrip_overlap_qc_ppr = overlap_ppr.frip_qc,\n\t\tidr_reproducibility_qc = reproducibility_idr.reproducibility_qc,\n\t\toverlap_reproducibility_qc = reproducibility_overlap.reproducibility_qc,\n\t}\n\n\t# ATAQC is available only when pipeline starts from fastqs, take fastqs[] as base array for ataqc\n\tArray[Array[Array[File]]] fastqs_ataqc = \n\t\tif basename(tss_enrich)=='null' || disable_ataqc || align_only || true_rep_only then [] else fastqs_\n\n\tscatter( i in range(length(fastqs_ataqc)) ) {\n\t\tcall ataqc { input : \n\t\t\tpaired_end = paired_end,\n\t\t\tread_len_log = bowtie2.read_len_log[i],\n\t\t\tflagstat_log = bowtie2.flagstat_qc[i],\n\t\t\tbowtie2_log = bowtie2.align_log[i],\n\t\t\tpbc_log = filter.pbc_qc[i],\n\t\t\tdup_log = filter.dup_qc[i],\n\t\t\tbam = bams_[i],\n\t\t\tnodup_flagstat_log = filter.flagstat_qc[i],\n\t\t\tmito_dup_log = filter.mito_dup_log[i],\n\t\t\tnodup_bam = nodup_bams_[i],\n\t\t\tta = tas_[i],\n\t\t\tpeak = if enable_idr then select_first([idr_pr.bfilt_idr_peak])[i]\n\t\t\t\t\telse reproducibility_overlap.optimal_peak,\n\t\t\tidr_peak = reproducibility_idr.optimal_peak, #idr_peaks_ataqc[i],\n\t\t\toverlap_peak= reproducibility_overlap.optimal_peak, #overlap_peaks_ataqc[i],\n\t\t\tbigwig = macs2.sig_pval[i],\n\t\t\tref_fa = ref_fa,\n\t\t\tchrsz = chrsz,\n\t\t\ttss_enrich = tss_enrich,\n\t\t\tblacklist = blacklist,\n\t\t\tdnase = dnase,\n\t\t\tprom = prom,\n\t\t\tenh = enh,\n\t\t\treg2map_bed = reg2map_bed,\n\t\t\treg2map = reg2map,\n\t\t\troadmap_meta = roadmap_meta,\n\t\t}\n\t}\t\n}\n\ntask trim_adapter { # trim adapters and merge trimmed fastqs\n\t# parameters from workflow\n\tArray[Array[File]] fastqs \t\t# [merge_id][read_end_id]\n\tArray[Array[String]] adapters \t# [merge_id][read_end_id]\n\tBoolean paired_end\n\t# mandatory\n\tBoolean? auto_detect_adapter\t# automatically detect/trim adapters\n\t# optional\n\tInt? min_trim_len \t\t# minimum trim length for cutadapt -m\n\tFloat? err_rate\t\t\t# Maximum allowed adapter error rate \n\t\t\t\t\t\t\t# for cutadapt -e\t\n\t# resource\n\tInt? cpu\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_trim_adapter.py) \\\n\t\t\t${write_tsv(fastqs)} \\\n\t\t\t--adapters ${write_tsv(adapters)} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t${if select_first([auto_detect_adapter,false]) then \"--auto-detect-adapter\" else \"\"} \\\n\t\t\t${\"--min-trim-len \" + select_first([min_trim_len,5])} \\\n\t\t\t${\"--err-rate \" + select_first([err_rate,'0.1'])} \\\n\t\t\t${\"--nth \" + select_first([cpu,2])}\n\t}\n\toutput {\n\t\t# WDL glob() globs in an alphabetical order\n\t\t# so R1 and R2 can be switched, which results in an\n\t\t# unexpected behavior of a workflow\n\t\t# so we prepend merge_fastqs_'end'_ (R1 or R2)\n\t\t# to the basename of original filename\n\t\t# this prefix will be later stripped in bowtie2 task\n\t\tArray[File] trimmed_merged_fastqs = glob(\"merge_fastqs_R?_*.fastq.gz\")\n\t}\n\truntime {\n\t\tcpu : select_first([cpu,2])\n\t\tmemory : \"${select_first([mem_mb,'12000'])} MB\"\n\t\ttime : select_first([time_hr,24])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\ntask bowtie2 {\n\t# parameters from workflow\n\tFile idx_tar \t\t# reference bowtie2 index tar\n\tArray[File] fastqs \t# [read_end_id]\n\tBoolean paired_end\n\tInt? multimapping\n\t# optional\n\tString? score_min \t# min acceptable alignment score func\n\t\t\t\t\t\t# w.r.t read length\n\t# resource\n\tInt? cpu\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_bowtie2.py) \\\n\t\t\t${idx_tar} \\\n\t\t\t${sep=' ' fastqs} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t${\"--multimapping \" + multimapping} \\\n\t\t\t${\"--score-min \" + score_min} \\\n\t\t\t${\"--nth \" + select_first([cpu,4])}\n\t}\n\toutput {\n\t\tFile bam = glob(\"*.bam\")[0]\n\t\tFile bai = glob(\"*.bai\")[0]\n\t\tFile align_log = glob(\"*.align.log\")[0]\n\t\tFile flagstat_qc = glob(\"*.flagstat.qc\")[0]\n\t\tFile read_len_log = glob(\"*.read_length.txt\")[0] # read_len\n\t}\n\truntime {\n\t\tcpu : select_first([cpu,4])\n\t\tmemory : \"${select_first([mem_mb,'20000'])} MB\"\n\t\ttime : select_first([time_hr,48])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t\tpreemptible: 0\n\t}\n}\n\ntask filter {\n\t# parameters from workflow\n\tFile bam\n\tBoolean paired_end\n\tInt? multimapping\n\t# optional\n\tString? dup_marker \t\t\t\t# picard.jar MarkDuplicates (picard) or \n\t\t\t\t\t\t\t\t\t# sambamba markdup (sambamba)\n\tInt? mapq_thresh\t\t\t\t# threshold for low MAPQ reads removal\n\tBoolean? no_dup_removal \t\t# no dupe reads removal when filtering BAM\n\t\t\t\t\t\t\t\t\t# dup.qc and pbc.qc will be empty files\n\t\t\t\t\t\t\t\t\t# and nodup_bam in the output is \n\t# resource\t\t\t\t\t\t# filtered bam with dupes\t\n\tInt? cpu\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_filter.py) \\\n\t\t\t${bam} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t${\"--multimapping \" + multimapping} \\\n\t\t\t${\"--dup-marker \" + select_first([dup_marker,'picard'])} \\\n\t\t\t${\"--mapq-thresh \" + select_first([mapq_thresh,30])} \\\n\t\t\t${if select_first([no_dup_removal,false]) then \"--no-dup-removal\" else \"\"} \\\n\t\t\t${\"--nth \" + cpu}\n\t\t# ugly part to deal with optional outputs with Google JES backend\n\t\t${if select_first([no_dup_removal,false]) then \"touch null.dup.qc null.pbc.qc null.mito_dup.txt; \" else \"\"}\n\t\ttouch null\n\t}\n\toutput {\n\t\tFile nodup_bam = glob(\"*.bam\")[0]\n\t\tFile nodup_bai = glob(\"*.bai\")[0]\n\t\tFile flagstat_qc = glob(\"*.flagstat.qc\")[0]\n\t\tFile dup_qc = if select_first([no_dup_removal,false]) then glob(\"null\")[0] else glob(\"*.dup.qc\")[0]\n\t\tFile pbc_qc = if select_first([no_dup_removal,false]) then glob(\"null\")[0] else glob(\"*.pbc.qc\")[0]\n\t\tFile mito_dup_log = if select_first([no_dup_removal,false]) then glob(\"null\")[0] else glob(\"*.mito_dup.txt\")[0] # mito_dups, fract_dups_from_mito\n\t}\n\truntime {\n\t\tcpu : select_first([cpu,2])\n\t\tmemory : \"${select_first([mem_mb,'20000'])} MB\"\n\t\ttime : select_first([time_hr,24])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\ntask bam2ta {\n\t# parameters from workflow\n\tFile bam\n\tBoolean paired_end\n\tBoolean disable_tn5_shift \t# no tn5 shifting (it's for dnase-seq)\n\t# optional\n\tString? regex_grep_v_ta   \t# Perl-style regular expression pattern \n                        \t\t# to remove matching reads from TAGALIGN\n\tInt? subsample \t\t\t\t# number of reads to subsample TAGALIGN\n\t\t\t\t\t\t\t\t# this affects all downstream analysis\n\t# resource\n\tInt? cpu\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_bam2ta.py) \\\n\t\t\t${bam} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t${if disable_tn5_shift then \"--disable-tn5-shift\" else \"\"} \\\n\t\t\t${\"--regex-grep-v-ta \" +\"'\"+select_first([regex_grep_v_ta,'chrM'])+\"'\"} \\\n\t\t\t${\"--subsample \" + select_first([subsample,0])} \\\n\t\t\t${\"--nth \" + cpu}\n\t}\n\toutput {\n\t\tFile ta = glob(\"*.tagAlign.gz\")[0]\n\t}\n\truntime {\n\t\tcpu : select_first([cpu,2])\n\t\tmemory : \"${select_first([mem_mb,'10000'])} MB\"\n\t\ttime : select_first([time_hr,6])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\ntask spr { # make two self pseudo replicates\n\t# parameters from workflow\n\tFile ta\n\tBoolean paired_end\n\n\t# resource\n\tInt? mem_mb\n\n\tcommand {\n\t\tpython $(which encode_spr.py) \\\n\t\t\t${ta} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"}\n\t}\n\toutput {\n\t\tFile ta_pr1 = glob(\"*.pr1.tagAlign.gz\")[0]\n\t\tFile ta_pr2 = glob(\"*.pr2.tagAlign.gz\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"${select_first([mem_mb,'16000'])} MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\n\t}\n}\n\ntask pool_ta {\n\t# parameters from workflow\n\tArray[File] tas\n\n\tcommand {\n\t\tpython $(which encode_pool_ta.py) \\\n\t\t\t${sep=' ' tas}\n\t}\n\toutput {\n\t\tFile ta_pooled = glob(\"*.tagAlign.gz\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\n\t}\n}\n\ntask xcor {\n\t# parameters from workflow\n\tFile ta\n\tBoolean paired_end\n\t# optional\n\tInt? subsample  # number of reads to subsample TAGALIGN\n\t\t\t\t\t# this will be used for xcor only\n\t\t\t\t\t# will not affect any downstream analysis\n\t# resource\n\tInt? cpu\n\tInt? mem_mb\t\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_xcor.py) \\\n\t\t\t${ta} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t${\"--subsample \" + select_first([subsample,25000000])} \\\n\t\t\t--speak=0 \\\n\t\t\t${\"--nth \" + select_first([cpu,2])}\n\t}\n\toutput {\n\t\tFile plot_pdf = glob(\"*.cc.plot.pdf\")[0]\n\t\tFile plot_png = glob(\"*.cc.plot.png\")[0]\n\t\tFile score = glob(\"*.cc.qc\")[0]\n\t\tInt fraglen = read_int(glob(\"*.cc.fraglen.txt\")[0])\n\t}\n\truntime {\n\t\tcpu : select_first([cpu,2])\n\t\tmemory : \"${select_first([mem_mb,'16000'])} MB\"\n\t\ttime : select_first([time_hr,6])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\ntask macs2 {\n\t# parameters from workflow\n\tFile ta\n\tString gensz\t\t# Genome size (sum of entries in 2nd column of \n                        # chr. sizes file, or hs for human, ms for mouse)\n\tFile chrsz\t\t\t# 2-col chromosome sizes file\n\tInt? cap_num_peak\t# cap number of raw peaks called from MACS2\n\tFloat? pval_thresh  # p.value threshold\n\tInt? smooth_win \t# size of smoothing window\n\tBoolean? make_signal\n\tFile blacklist \t\t# blacklist BED to filter raw peaks\n\t# resource\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\tpython $(which encode_macs2_atac.py) \\\n\t\t\t${ta} \\\n\t\t\t${\"--gensz \"+ gensz} \\\n\t\t\t${\"--chrsz \" + chrsz} \\\n\t\t\t${\"--cap-num-peak \" + select_first([cap_num_peak,300000])} \\\n\t\t\t${\"--pval-thresh \"+ select_first([pval_thresh,'0.01'])} \\\n\t\t\t${\"--smooth-win \"+ select_first([smooth_win,150])} \\\n\t\t\t${if select_first([make_signal,false]) then \"--make-signal\" else \"\"} \\\n\t\t\t${\"--blacklist \"+ blacklist}\n\t\t\n\t\t# ugly part to deal with optional outputs with Google JES backend\n\t\t${if select_first([make_signal,false]) then \"\" \n\t\t\telse \"touch null.pval.signal.bigwig null.fc.signal.bigwig\"}\n\t\ttouch null \n\t}\n\toutput {\n\t\tFile npeak = glob(\"*[!.][!b][!f][!i][!l][!t].narrowPeak.gz\")[0]\n\t\tFile bfilt_npeak = glob(\"*.bfilt.narrowPeak.gz\")[0]\n\t\tFile bfilt_npeak_bb = glob(\"*.bfilt.narrowPeak.bb\")[0]\n\t\tFile sig_pval = if select_first([make_signal,false]) then glob(\"*.pval.signal.bigwig\")[0] else glob(\"null\")[0]\n\t\tFile sig_fc = if select_first([make_signal,false]) then glob(\"*.fc.signal.bigwig\")[0] else glob(\"null\")[0]\n\t\tFile frip_qc = glob(\"*.frip.qc\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"${select_first([mem_mb,'20000'])} MB\"\n\t\ttime : select_first([time_hr,24])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\ntask idr {\n\t# parameters from workflow\n\tString? prefix \t\t# prefix for IDR output file\n\tFile peak1 \t\t\t\n\tFile peak2\n\tFile peak_pooled\n\tFloat? idr_thresh\n\tFile blacklist \t# blacklist BED to filter raw peaks\n\t# parameters to compute FRiP\n\tFile? ta\t\t# to calculate FRiP\n\tFile chrsz\t\t\t# 2-col chromosome sizes file\n\tString peak_type\n\tString rank\n\n\tcommand {\n\t\tpython $(which encode_idr.py) \\\n\t\t\t${peak1} ${peak2} ${peak_pooled} \\\n\t\t\t${\"--prefix \" + prefix} \\\n\t\t\t${\"--idr-thresh \" + select_first([idr_thresh,'0.1'])} \\\n\t\t\t${\"--peak-type \" + peak_type} \\\n\t\t\t--idr-rank ${rank} \\\n\t\t\t${\"--chrsz \" + chrsz} \\\n\t\t\t${\"--blacklist \"+ blacklist} \\\n\t\t\t${\"--ta \" + ta}\n\n\t\t# ugly part to deal with optional outputs with Google backend\n\t\t${if defined(ta) then \"\" else \"touch null.frip.qc\"}\n\t\ttouch null \n\t}\n\toutput {\n\t\tFile idr_peak = glob(\"*[!.][!b][!f][!i][!l][!t].\"+peak_type+\".gz\")[0]\n\t\tFile bfilt_idr_peak = glob(\"*.bfilt.\"+peak_type+\".gz\")[0]\n\t\tFile bfilt_idr_peak_bb = glob(\"*.bfilt.\"+peak_type+\".bb\")[0]\n\t\tFile idr_plot = glob(\"*.txt.png\")[0]\n\t\tFile idr_unthresholded_peak = glob(\"*.txt.gz\")[0]\n\t\tFile idr_log = glob(\"*.log\")[0]\n\t\tFile frip_qc = if defined(ta) then glob(\"*.frip.qc\")[0] else glob(\"null\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"8000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\n\t}\t\n}\n\ntask overlap {\n\t# parameters from workflow\n\tString prefix \t\t# prefix for IDR output file\n\tFile peak1\n\tFile peak2\n\tFile peak_pooled\n\tFile blacklist \t# blacklist BED to filter raw peaks\n\tFile? ta\t\t# to calculate FRiP\n\tFile chrsz\t\t\t# 2-col chromosome sizes file\n\tString peak_type\n\n\tcommand {\n\t\tpython $(which encode_naive_overlap.py) \\\n\t\t\t${peak1} ${peak2} ${peak_pooled} \\\n\t\t\t${\"--prefix \" + prefix} \\\n\t\t\t${\"--peak-type \" + peak_type} \\\n\t\t\t${\"--chrsz \" + chrsz} \\\n\t\t\t${\"--blacklist \"+ blacklist} \\\n\t\t\t${\"--ta \" + ta}\n\n\t\t# ugly part to deal with optional outputs with Google backend\n\t\t${if defined(ta) then \"\" else \"touch null.frip.qc\"}\n\t\ttouch null \n\t}\n\toutput {\n\t\tFile overlap_peak = glob(\"*[!.][!b][!f][!i][!l][!t].\"+peak_type+\".gz\")[0]\n\t\tFile bfilt_overlap_peak = glob(\"*.bfilt.\"+peak_type+\".gz\")[0]\n\t\tFile bfilt_overlap_peak_bb = glob(\"*.bfilt.\"+peak_type+\".bb\")[0]\n\t\tFile frip_qc = if defined(ta) then glob(\"*.frip.qc\")[0] else glob(\"null\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\n\t}\n}\n\ntask reproducibility {\n\t# parameters from workflow\n\tString prefix\n\tArray[File]? peaks # peak files from pair of true replicates\n\t\t\t\t\t\t# in a sorted order. for example of 4 replicates,\n\t\t\t\t\t\t# 1,2 1,3 1,4 2,3 2,4 3,4.\n                        # x,y means peak file from rep-x vs rep-y\n\tArray[File]? peaks_pr\t# peak files from pseudo replicates\n\tFile? peak_ppr\t\t\t# Peak file from pooled pseudo replicate.\n\n\tcommand {\n\t\tpython $(which encode_reproducibility_qc.py) \\\n\t\t\t${sep=' ' peaks} \\\n\t\t\t--peaks-pr ${sep=' ' peaks_pr} \\\n\t\t\t${\"--peak-ppr \"+ peak_ppr} \\\n\t\t\t--prefix ${prefix}\n\t}\n\toutput {\n\t\tFile optimal_peak = glob(\"optimal_peak.gz\")[0]\n\t\tFile conservative_peak = glob(\"conservative_peak.gz\")[0]\n\t\tFile reproducibility_qc = glob(\"*reproducibility.qc\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\n\t}\n}\n\ntask ataqc { # generate ATAQC report\n\tBoolean paired_end\n\tFile read_len_log\n\tFile flagstat_log\n\tFile bowtie2_log\n\tFile bam\n\tFile nodup_flagstat_log\n\tFile mito_dup_log\n\tFile dup_log\n\tFile pbc_log\n\tFile nodup_bam\n\tFile ta\n\tFile? peak\n\tFile? idr_peak \n\tFile? overlap_peak\n\tFile bigwig\n\t# from genome database\n\tFile ref_fa\n\tFile chrsz\n\tFile tss_enrich\n\tFile blacklist\n\tFile dnase\n\tFile prom\n\tFile enh\n\tFile reg2map_bed\n\tFile reg2map\n\tFile roadmap_meta\n\t# resource\n\tInt? mem_mb\n\tInt? time_hr\n\tString? disks\n\n\tcommand {\n\t\texport PICARDROOT=$(dirname $(which picard.jar))\n\t\texport _JAVA_OPTIONS=\"-Xms256M -Xmx${select_first([mem_mb,'16000'])}M -XX:ParallelGCThreads=1\"\n\n\t\tpython $(which encode_ataqc.py) \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t--read-len-log ${read_len_log} \\\n\t\t\t--flagstat-log ${flagstat_log} \\\n\t\t\t--bowtie2-log ${bowtie2_log} \\\n\t\t\t--bam ${bam} \\\n\t\t\t--nodup-flagstat-log ${nodup_flagstat_log} \\\n\t\t\t--mito-dup-log ${mito_dup_log} \\\n\t\t\t--dup-log ${dup_log} \\\n\t\t\t--pbc-log ${pbc_log} \\\n\t\t\t--nodup-bam ${nodup_bam} \\\n\t\t\t--ta ${ta} \\\n\t\t\t--bigwig ${bigwig} \\\n\t\t\t${\"--peak \" + peak} \\\n\t\t\t${\"--idr-peak \" + idr_peak} \\\n\t\t\t${\"--overlap-peak \" + overlap_peak} \\\n\t\t\t--ref-fa ${ref_fa} \\\n\t\t\t--blacklist ${blacklist} \\\n\t\t\t--chrsz ${chrsz} \\\n\t\t\t--dnase ${dnase} \\\n\t\t\t--tss-enrich ${tss_enrich} \\\n\t\t\t--prom ${prom} \\\n\t\t\t--enh ${enh} \\\n\t\t\t--reg2map-bed ${reg2map_bed} \\\n\t\t\t--reg2map ${reg2map} \\\n\t\t\t--roadmap-meta ${roadmap_meta}\n\t}\n\toutput {\n\t    #File raw_peak_summ = glob(\"*.raw_peak_summ.tsv\")[0]\n\t    #File raw_peak_dist = glob(\"*.raw_peak_dist.png\")[0]\n\t    #File naive_peak_summ =  if defined(overlap_peak) then glob(\"*.naive_peak_summ.tsv\")[0] else glob(\"null\")[0]\n\t    #File naive_peak_dist = if defined(overlap_peak) then glob(\"*.naive_peak_dist.png\")[0] else glob(\"null\")[0]\n\t    #File idr_peak_summ = if defined(idr_peak) then glob(\"*.idr_peak_summ.tsv\")[0] else glob(\"null\")[0]\n\t    #File idr_peak_dist = if defined(idr_peak) then glob(\"*.idr_peak_dist.png\")[0] else glob(\"null\")[0]\n\t\t#File preseq_data = glob(\"*.preseq.data\")[0]\n\t\t#File preseq_log = glob(\"*.preseq.log\")[0]\n\t\t#File gc_plot = glob(\"*_gcPlot.pdf\")[0]\n\t\t#File gc_out = glob(\"*_gc.txt\")[0]\n\t\t#File gc_summary = glob(\"*_gcSummary.txt\")[0]\n\t\t# optional\n\t\t#File tss_plot_file = if defined(tss_enrich) then glob(\"*_tss-enrich.png\")[0] else glob(\"null\")[0]\n\t\t#File tss_plot_large_file = if defined(tss_enrich) then glob(\"*_large_tss-enrich.png\")[0] else glob(\"null\")[0]\n\t\t#File roadmap_compare_plot = glob(\"*.signal\")[0]\n\t\t#File tar = glob(\"*.tar.gz\")[0]\n\t\tFile html = glob(\"*_qc.html\")[0]\n\t\tFile txt = glob(\"*_qc.txt\")[0]\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"${select_first([mem_mb,'20000'])} MB\"\n\t\ttime : select_first([time_hr,24])\n\t\tdisks : select_first([disks,\"local-disk 100 HDD\"])\n\t}\n}\n\n# gather all outputs and generate \n# - qc.html\t\t: organized final HTML report\n# - qc.json\t\t: all QCs\ntask qc_report {\n\t# optional metadata\n \tString? name # name of sample\n\tString? desc # description for sample\n\t#String? encode_accession_id\t# ENCODE accession ID of sample\n\t# workflow params\n\tBoolean paired_end\n\tString pipeline_type\n\tString peak_caller\n\tFloat idr_thresh\n\t# QCs\n\tArray[File]? flagstat_qcs\n\tArray[File]? nodup_flagstat_qcs\n\tArray[File]? dup_qcs\n\tArray[File]? pbc_qcs\n\tArray[File]? xcor_plots\n\tArray[File]? xcor_scores\n\tArray[File]? idr_plots\n\tArray[File]? idr_plots_pr\n\tFile? idr_plot_ppr\n\tArray[File]? frip_macs2_qcs\n\tArray[File]? frip_macs2_qcs_pr1\n\tArray[File]? frip_macs2_qcs_pr2\n\tFile? frip_macs2_qc_pooled\n\tFile? frip_macs2_qc_ppr1 \n\tFile? frip_macs2_qc_ppr2 \n\tArray[File]? frip_idr_qcs\n\tArray[File]? frip_idr_qcs_pr\n\tFile? frip_idr_qc_ppr \n\tArray[File]? frip_overlap_qcs\n\tArray[File]? frip_overlap_qcs_pr\n\tFile? frip_overlap_qc_ppr\n\tFile? idr_reproducibility_qc\n\tFile? overlap_reproducibility_qc\n\n\tFile? qc_json_ref\n\n\tcommand {\n\t\tpython $(which encode_qc_report.py) \\\n\t\t\t${\"--name '\" + name + \"'\"} \\\n\t\t\t${\"--desc '\" + desc + \"'\"} \\\n\t\t\t${if paired_end then \"--paired-end\" else \"\"} \\\n\t\t\t--pipeline-type ${pipeline_type} \\\n\t\t\t--peak-caller ${peak_caller} \\\n\t\t\t--idr-thresh ${idr_thresh} \\\n\t\t\t--flagstat-qcs ${sep=' ' flagstat_qcs} \\\n\t\t\t--nodup-flagstat-qcs ${sep=' ' nodup_flagstat_qcs} \\\n\t\t\t--dup-qcs ${sep=' ' dup_qcs} \\\n\t\t\t--pbc-qcs ${sep=' ' pbc_qcs} \\\n\t\t\t--xcor-plots ${sep=' ' xcor_plots} \\\n\t\t\t--xcor-scores ${sep=' ' xcor_scores} \\\n\t\t\t--idr-plots ${sep=' ' idr_plots} \\\n\t\t\t--idr-plots-pr ${sep=' ' idr_plots_pr} \\\n\t\t\t${\"--idr-plot-ppr \" + idr_plot_ppr} \\\n\t\t\t--frip-macs2-qcs ${sep=' ' frip_macs2_qcs} \\\n\t\t\t--frip-macs2-qcs-pr1 ${sep=' ' frip_macs2_qcs_pr1} \\\n\t\t\t--frip-macs2-qcs-pr2 ${sep=' ' frip_macs2_qcs_pr2} \\\n\t\t\t${\"--frip-macs2-qc-pooled \" + frip_macs2_qc_pooled} \\\n\t\t\t${\"--frip-macs2-qc-ppr1 \" + frip_macs2_qc_ppr1} \\\n\t\t\t${\"--frip-macs2-qc-ppr2 \" + frip_macs2_qc_ppr2} \\\n\t\t\t--frip-idr-qcs ${sep=' ' frip_idr_qcs} \\\n\t\t\t--frip-idr-qcs-pr ${sep=' ' frip_idr_qcs_pr} \\\n\t\t\t${\"--frip-idr-qc-ppr \" + frip_idr_qc_ppr} \\\n\t\t\t--frip-overlap-qcs ${sep=' ' frip_overlap_qcs} \\\n\t\t\t--frip-overlap-qcs-pr ${sep=' ' frip_overlap_qcs_pr} \\\n\t\t\t${\"--frip-overlap-qc-ppr \" + frip_overlap_qc_ppr} \\\n\t\t\t${\"--idr-reproducibility-qc \" + idr_reproducibility_qc} \\\n\t\t\t${\"--overlap-reproducibility-qc \" + overlap_reproducibility_qc} \\\n\t\t\t--out-qc-html qc.html \\\n\t\t\t--out-qc-json qc.json\n\t\t\n\t\tdiff qc.json ${if defined(qc_json_ref) then qc_json_ref else \"/dev/null\"} | wc -l > qc_json_match.txt\n\t}\n\toutput {\n\t\tFile report = glob('*qc.html')[0]\n\t\tFile qc_json = glob('*qc.json')[0]\n\t\tBoolean qc_json_match = read_int(\"qc_json_match.txt\")==0\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\t\t\n\t}\n}\n\ntask read_genome_tsv {\n\tFile genome_tsv\n\tcommand {\n\t\techo \"Reading genome_tsv ${genome_tsv} ...\"\n\t}\n\toutput {\n\t\tMap[String,String] genome = read_map(genome_tsv)\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\t\t\n\t}\n}\n\ntask compare_md5sum {\n\tArray[String] labels\n\tArray[File] files\n\tArray[File] ref_files\n\n\tcommand <<<\n\t\tpython <<CODE\t\n\t\tfrom collections import OrderedDict\n\t\timport os\n\t\timport json\n\t\timport hashlib\n\n\t\tdef md5sum(filename, blocksize=65536):\n\t\t    hash = hashlib.md5()\n\t\t    with open(filename, 'rb') as f:\n\t\t        for block in iter(lambda: f.read(blocksize), b\"\"):\n\t\t            hash.update(block)\n\t\t    return hash.hexdigest()\n\n\t\twith open('${write_lines(labels)}','r') as fp:\n\t\t\tlabels = fp.read().splitlines()\n\t\twith open('${write_lines(files)}','r') as fp:\n\t\t\tfiles = fp.read().splitlines()\n\t\twith open('${write_lines(ref_files)}','r') as fp:\n\t\t\tref_files = fp.read().splitlines()\n\n\t\tresult = OrderedDict()\n\t\tmatch = OrderedDict()\n\t\tmatch_overall = True\n\n\t\tresult['tasks'] = []\n\t\tresult['failed_task_labels'] = []\n\t\tresult['succeeded_task_labels'] = []\n\t\tfor i, label in enumerate(labels):\n\t\t\tf = files[i]\n\t\t\tref_f = ref_files[i]\n\t\t\tmd5 = md5sum(f)\n\t\t\tref_md5 = md5sum(ref_f)\n\t\t\t# if text file, read in contents\n\t\t\tif f.endswith('.qc') or f.endswith('.txt') or \\\n\t\t\t\tf.endswith('.log') or f.endswith('.out'):\n\t\t\t\twith open(f,'r') as fp:\n\t\t\t\t\tcontents = fp.read()\n\t\t\t\twith open(ref_f,'r') as fp:\n\t\t\t\t\tref_contents = fp.read()\n\t\t\telse:\n\t\t\t\tcontents = ''\n\t\t\t\tref_contents = ''\n\t\t\tmatched = md5==ref_md5\n\t\t\tresult['tasks'].append(OrderedDict([\n\t\t\t\t('label', label),\n\t\t\t\t('match', matched),\n\t\t\t\t('md5sum', md5),\n\t\t\t\t('ref_md5sum', ref_md5),\n\t\t\t\t('basename', os.path.basename(f)),\n\t\t\t\t('ref_basename', os.path.basename(ref_f)),\n\t\t\t\t('contents', contents),\n\t\t\t\t('ref_contents', ref_contents),\n\t\t\t\t]))\n\t\t\tmatch[label] = matched\n\t\t\tmatch_overall &= matched\n\t\t\tif matched:\n\t\t\t\tresult['succeeded_task_labels'].append(label)\n\t\t\telse:\n\t\t\t\tresult['failed_task_labels'].append(label)\t\t\n\t\tresult['match_overall'] = match_overall\n\n\t\twith open('result.json','w') as fp:\n\t\t\tfp.write(json.dumps(result, indent=4))\n\t\tmatch_tmp = []\n\t\tfor key in match:\n\t\t\tval = match[key]\n\t\t\tmatch_tmp.append('{}\\t{}'.format(key, val))\n\t\twith open('match.tsv','w') as fp:\n\t\t\tfp.writelines('\\n'.join(match_tmp))\n\t\twith open('match_overall.txt','w') as fp:\n\t\t\tfp.write(str(match_overall))\n\t\tCODE\n\t>>>\n\toutput {\n\t\tMap[String,String] match = read_map('match.tsv') # key:label, val:match\n\t\tBoolean match_overall = read_boolean('match_overall.txt')\n\t\tFile json = glob('result.json')[0] # details (json file)\n\t\tString json_str = read_string('result.json') # details (string)\n\t}\n\truntime {\n\t\tcpu : 1\n\t\tmemory : \"4000 MB\"\n\t\ttime : 1\n\t\tdisks : \"local-disk 50 HDD\"\t\t\n\t}\n}\n",
+    "root": "None",
+    "options": "{\n  \"default_runtime_attributes\": {\n    \"preemptible\": \"0\",\n    \"failOnStderr\": false,\n    \"bootDiskSizeGb\": \"10\",\n    \"continueOnReturnCode\": 0,\n    \"docker\": \"quay.io/encode-dcc/atac-seq-pipeline:v1\",\n    \"noAddress\": \"false\",\n    \"zones\": \"us-west1-a us-west1-b us-west1-c us-central1-c us-central1-b\"\n  }\n}",
+    "inputs": "{\n    \"atac.pipeline_type\" : \"atac\",\n    \"atac.genome_tsv\" : \"gs://encode-pipeline-genome-data/mm10_google.tsv\",\n    \"atac.fastqs\" : [\n        [ \n            [\"gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_1/ENCFF442YHM.fastq.gz\",\n            \"gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_2/ENCFF379WRX.fastq.gz\"],\n            [\"gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_1/ENCFF177WUQ.fastq.gz\",\n            \"gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_2/ENCFF688QCB.fastq.gz\"]\n        ]\n    ],\n\n    \"atac.paired_end\" : true,\n    \"atac.multimapping\" : 4,    \n\n    \"atac.trim_adapter.auto_detect_adapter\" : true,\n\n    \"atac.trim_adapter.cpu\" : 2,\n\n    \"atac.bowtie2.cpu\" : 4,\n    \"atac.bowtie2.mem_mb\" : 16000,\n\n    \"atac.filter.cpu\" : 2,\n    \"atac.filter.mem_mb\" : 12000,\n\n    \"atac.macs2_mem_mb\" : 16000,\n\n    \"atac.smooth_win\" : 73,\n    \"atac.enable_idr\" : true,\n    \"atac.idr_thresh\" : 0.05,\n\n    \"atac.qc_report.name\" : \"ENCSR993QKC\",\n    \"atac.qc_report.desc\" : \"ATAC-seq on Mus musculus hat-challange\"\n}",
+    "labels": "{}"
+  },
+  "calls": {
+    "atac.bam2ta": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-b/n1-highmem-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-b",
+        "instanceName": "ggp-4378876950324810372"
+      },
+      "outputs": {
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "2",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "10000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "disable_tn5_shift": false,
+        "subsample": null,
+        "mem_mb": null,
+        "time_hr": null,
+        "disks": null,
+        "regex_grep_v_ta": null,
+        "cpu": null,
+        "paired_end": true,
+        "bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.nodup.bam"
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "bam2ta"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "bam2ta"
+      },
+      "jobId": "operations/EJixkK7LLBiEpYaaray54jwgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:01:26.850Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T03:40:01.544054834Z",
+        "startTime": "2018-07-20T03:38:47.370378627Z",
+        "description": "pulling-image"
+      }, {
+        "description": "RunningJob",
+        "endTime": "2018-07-20T03:38:04Z",
+        "startTime": "2018-07-20T03:37:39.532Z"
+      }, {
+        "description": "UpdatingJobStore",
+        "endTime": "2018-07-20T04:01:26.853Z",
+        "startTime": "2018-07-20T04:01:26.849Z"
+      }, {
+        "endTime": "2018-07-20T04:01:26.849Z",
+        "description": "cromwell poll interval",
+        "startTime": "2018-07-20T04:00:14.204153611Z"
+      }, {
+        "endTime": "2018-07-20T04:00:01.278901576Z",
+        "startTime": "2018-07-20T03:40:30.925180187Z",
+        "description": "running-docker"
+      }, {
+        "startTime": "2018-07-20T03:40:01.544054834Z",
+        "endTime": "2018-07-20T03:40:30.925180187Z",
+        "description": "localizing-files"
+      }, {
+        "startTime": "2018-07-20T03:37:39.285Z",
+        "description": "Pending",
+        "endTime": "2018-07-20T03:37:39.288Z"
+      }, {
+        "startTime": "2018-07-20T03:38:04Z",
+        "endTime": "2018-07-20T03:38:15Z",
+        "description": "waiting for quota"
+      }, {
+        "endTime": "2018-07-20T04:00:14.204153611Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:00:14.204153611Z"
+      }, {
+        "endTime": "2018-07-20T03:37:39.508Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T03:37:39.288Z"
+      }, {
+        "endTime": "2018-07-20T03:37:39.532Z",
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T03:37:39.508Z"
+      }, {
+        "startTime": "2018-07-20T03:38:15Z",
+        "endTime": "2018-07-20T03:38:47.370315343Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-20T04:00:14.204153611Z",
+        "startTime": "2018-07-20T04:00:01.278901576Z",
+        "description": "delocalizing-files"
+      }, {
+        "startTime": "2018-07-20T03:37:39.508Z",
+        "endTime": "2018-07-20T03:37:39.508Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "endTime": "2018-07-20T03:38:47.370378627Z",
+        "description": "start",
+        "startTime": "2018-07-20T03:38:47.370315343Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/bam2ta-0.log"
+      },
+      "start": "2018-07-20T03:37:39.284Z"
+    }],
+    "atac.read_genome_tsv": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-read_genome_tsv/stdout",
+      "backendStatus": "Success",
+      "shardIndex": -1,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-b",
+        "instanceName": "ggp-751484896839588708"
+      },
+      "outputs": {
+        "genome": {
+          "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+          "enh": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_enh_dhs_ucsc.bed.gz",
+          "ref_fa": "gs://encode-pipeline-genome-data/mm10/mm10_no_alt_analysis_set_ENCODE.fasta.gz",
+          "reg2map": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_formatted.txt.gz",
+          "bwa_idx_tar": "gs://encode-pipeline-genome-data/mm10/bwa_index/mm10_no_alt_analysis_set_ENCODE.fasta.tar",
+          "roadmap_meta": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_metadata.txt",
+          "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+          "bowtie2_idx_tar": "gs://encode-pipeline-genome-data/mm10/bowtie2_index/mm10_no_alt_analysis_set_ENCODE.fasta.tar",
+          "reg2map_bed": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_celltype_compare_subsample.bed.gz",
+          "gensz": "mm",
+          "tss_enrich": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_gencode_tss_unique.bed.gz",
+          "prom": "gs://encode-pipeline-genome-data/mm10/ataqc/tss_mm10_master.bed.gz",
+          "dnase": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_univ_dhs_ucsc.bed.gz"
+        }
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "genome_tsv": "gs://encode-pipeline-genome-data/mm10_google.tsv"
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "read-genome-tsv"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "read_genome_tsv"
+      },
+      "jobId": "operations/EMOexKLLLBjktsfRg_Hztgogvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-19T20:55:02.781Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-read_genome_tsv/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-read_genome_tsv",
+      "attempt": 1,
+      "executionEvents": [{
+        "startTime": "2018-07-19T20:52:19.087Z",
+        "description": "RunningJob",
+        "endTime": "2018-07-19T20:52:48Z"
+      }, {
+        "endTime": "2018-07-19T20:53:25.257777811Z",
+        "startTime": "2018-07-19T20:52:58Z",
+        "description": "initializing VM"
+      }, {
+        "description": "start",
+        "startTime": "2018-07-19T20:53:25.257777811Z",
+        "endTime": "2018-07-19T20:53:25.257846030Z"
+      }, {
+        "endTime": "2018-07-19T20:52:58Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-19T20:52:48Z"
+      }, {
+        "endTime": "2018-07-19T20:52:18.336Z",
+        "description": "Pending",
+        "startTime": "2018-07-19T20:52:18.311Z"
+      }, {
+        "description": "ok",
+        "endTime": "2018-07-19T20:54:47.292232628Z",
+        "startTime": "2018-07-19T20:54:47.292232628Z"
+      }, {
+        "startTime": "2018-07-19T20:54:47.292232628Z",
+        "description": "cromwell poll interval",
+        "endTime": "2018-07-19T20:55:02.780Z"
+      }, {
+        "endTime": "2018-07-19T20:52:19.087Z",
+        "startTime": "2018-07-19T20:52:18.517Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-19T20:55:02.792Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-19T20:55:02.780Z"
+      }, {
+        "endTime": "2018-07-19T20:54:39.891281742Z",
+        "startTime": "2018-07-19T20:54:36.486312457Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-19T20:52:18.517Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-19T20:52:18.506Z"
+      }, {
+        "endTime": "2018-07-19T20:54:47.292232628Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-19T20:54:39.891281742Z"
+      }, {
+        "endTime": "2018-07-19T20:52:18.506Z",
+        "startTime": "2018-07-19T20:52:18.336Z",
+        "description": "RequestingExecutionToken"
+      }, {
+        "endTime": "2018-07-19T20:54:36.486312457Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-19T20:54:30.207376708Z"
+      }, {
+        "endTime": "2018-07-19T20:54:30.207376708Z",
+        "startTime": "2018-07-19T20:53:25.257846030Z",
+        "description": "pulling-image"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-read_genome_tsv/read_genome_tsv.log"
+      },
+      "start": "2018-07-19T20:52:18.293Z"
+    }],
+    "atac.idr_pr": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-c/n1-highmem-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-c",
+        "instanceName": "ggp-15182410732108818722"
+      },
+      "outputs": {
+        "idr_plot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-8da83e7748d9e54f3e082eb4aa171757/rep1-pr.idr0.05.unthresholded-peaks.txt.png",
+        "idr_unthresholded_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-b34256f7f8497ceb77fad19f39663af0/rep1-pr.idr0.05.unthresholded-peaks.txt.gz",
+        "frip_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.idr0.05.bfilt.frip.qc",
+        "idr_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/rep1-pr.idr0.05.narrowPeak.gz",
+        "bfilt_idr_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.idr0.05.bfilt.narrowPeak.gz",
+        "idr_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-c94d492e4d5a9e6759399733eb456839/rep1-pr.idr0.05.log",
+        "bfilt_idr_peak_bb": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-155eada107f68a2195912a39f5dee4bc/rep1-pr.idr0.05.bfilt.narrowPeak.bb"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "8000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "peak_type": "narrowPeak",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "prefix": "rep1-pr",
+        "peak2": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.narrowPeak.gz",
+        "rank": "p.value",
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "idr_thresh": 0.05,
+        "peak1": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.narrowPeak.gz",
+        "peak_pooled": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.narrowPeak.gz"
+      },
+      "backendLabels": {
+        "wdl-call-alias": "idr-pr",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "idr"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-call-alias": "idr_pr",
+        "wdl-task-name": "idr",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/EISh5q_LLBii0rLL78Ow2dIBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T04:44:52.026Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:43:43.376963477Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T04:43:17.342244673Z"
+      }, {
+        "endTime": "2018-07-20T04:44:52.026Z",
+        "startTime": "2018-07-20T04:43:43.376963477Z",
+        "description": "cromwell poll interval"
+      }, {
+        "endTime": "2018-07-20T04:36:56.642355610Z",
+        "startTime": "2018-07-20T04:36:37Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-20T04:36:01.507Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:36:01.105Z"
+      }, {
+        "endTime": "2018-07-20T04:43:43.376963477Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:43:43.376963477Z"
+      }, {
+        "endTime": "2018-07-20T04:36:01.105Z",
+        "startTime": "2018-07-20T04:36:01.105Z",
+        "description": "Pending"
+      }, {
+        "endTime": "2018-07-20T04:44:52.026Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-20T04:44:52.026Z"
+      }, {
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:38:28.092622102Z",
+        "endTime": "2018-07-20T04:38:38.945065271Z"
+      }, {
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:36:01.507Z",
+        "endTime": "2018-07-20T04:36:01.515Z"
+      }, {
+        "endTime": "2018-07-20T04:36:37Z",
+        "startTime": "2018-07-20T04:36:28Z",
+        "description": "waiting for quota"
+      }, {
+        "endTime": "2018-07-20T04:38:28.092622102Z",
+        "startTime": "2018-07-20T04:36:56.642427416Z",
+        "description": "pulling-image"
+      }, {
+        "startTime": "2018-07-20T04:36:56.642355610Z",
+        "description": "start",
+        "endTime": "2018-07-20T04:36:56.642427416Z"
+      }, {
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:36:01.523Z",
+        "endTime": "2018-07-20T04:36:28Z"
+      }, {
+        "endTime": "2018-07-20T04:36:01.523Z",
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T04:36:01.515Z"
+      }, {
+        "description": "running-docker",
+        "startTime": "2018-07-20T04:38:38.945065271Z",
+        "endTime": "2018-07-20T04:43:17.342244673Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/idr_pr-0.log"
+      },
+      "start": "2018-07-20T04:36:01.103Z"
+    }],
+    "atac.ataqc": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-b/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-b",
+        "instanceName": "ggp-9511727825703778865"
+      },
+      "outputs": {
+        "html": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/glob-47eccad02a94d57a391dcc7587d65007/ENCFF442YHM.trim.merged_qc.html",
+        "txt": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/glob-add762cb3e49a6937f1540db118fa0c8/ENCFF442YHM.trim.merged_qc.txt"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "20000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "enh": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_enh_dhs_ucsc.bed.gz",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "ref_fa": "gs://encode-pipeline-genome-data/mm10/mm10_no_alt_analysis_set_ENCODE.fasta.gz",
+        "nodup_flagstat_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.nodup.flagstat.qc",
+        "bowtie2_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-2b79af24cb30a9eaebb132920a58f9c5/ENCFF442YHM.trim.merged.align.log",
+        "reg2map": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_formatted.txt.gz",
+        "bigwig": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-7ab0340dfeb10ca109917cbdcc568548/ENCFF442YHM.trim.merged.nodup.tn5.pval.signal.bigwig",
+        "mem_mb": null,
+        "time_hr": null,
+        "roadmap_meta": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_metadata.txt",
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "disks": null,
+        "peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.idr0.05.bfilt.narrowPeak.gz",
+        "reg2map_bed": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_celltype_compare_subsample.bed.gz",
+        "tss_enrich": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_gencode_tss_unique.bed.gz",
+        "nodup_bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.nodup.bam",
+        "read_len_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-773fb92850749a2b4a829cf3c8c4de27/ENCFF379WRX.trim.merged.read_length.txt",
+        "paired_end": true,
+        "overlap_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+        "idr_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+        "prom": "gs://encode-pipeline-genome-data/mm10/ataqc/tss_mm10_master.bed.gz",
+        "flagstat_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.flagstat.qc",
+        "dup_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-1b4794e80f740fd50137e3a948d7ba79/ENCFF442YHM.trim.merged.dup.qc",
+        "bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.bam",
+        "mito_dup_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-464553c80b37704e09c623386a14d01f/ENCFF442YHM.trim.merged.dupmark.mito_dup.txt",
+        "pbc_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-85baf8309ae5456274184b199e3a7924/ENCFF442YHM.trim.merged.dupmark.pbc.qc",
+        "dnase": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_univ_dhs_ucsc.bed.gz"
+      },
+      "backendLabels": {
+        "wdl-task-name": "ataqc",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "ataqc"
+      },
+      "jobId": "operations/ELmJkbDLLBix9Jba_sGcgIQBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T06:45:29.350Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:50:58.234510768Z",
+        "startTime": "2018-07-20T04:48:53.890565484Z",
+        "description": "pulling-image"
+      }, {
+        "endTime": "2018-07-20T04:48:53.890565484Z",
+        "description": "start",
+        "startTime": "2018-07-20T04:48:53.890451743Z"
+      }, {
+        "endTime": "2018-07-20T04:47:40.530Z",
+        "startTime": "2018-07-20T04:47:40.497Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-20T04:48:10Z",
+        "startTime": "2018-07-20T04:47:40.530Z",
+        "description": "RunningJob"
+      }, {
+        "endTime": "2018-07-20T06:35:46.848713030Z",
+        "description": "ok",
+        "startTime": "2018-07-20T06:35:46.848713030Z"
+      }, {
+        "startTime": "2018-07-20T04:48:10Z",
+        "description": "waiting for quota",
+        "endTime": "2018-07-20T04:48:17Z"
+      }, {
+        "endTime": "2018-07-20T04:48:53.890451743Z",
+        "startTime": "2018-07-20T04:48:17Z",
+        "description": "initializing VM"
+      }, {
+        "description": "running-docker",
+        "startTime": "2018-07-20T04:53:25.678419442Z",
+        "endTime": "2018-07-20T06:35:36.288813728Z"
+      }, {
+        "startTime": "2018-07-20T04:50:58.234510768Z",
+        "description": "localizing-files",
+        "endTime": "2018-07-20T04:53:25.678419442Z"
+      }, {
+        "description": "Pending",
+        "startTime": "2018-07-20T04:47:40.009Z",
+        "endTime": "2018-07-20T04:47:40.014Z"
+      }, {
+        "endTime": "2018-07-20T04:47:40.496Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:47:40.014Z"
+      }, {
+        "endTime": "2018-07-20T06:45:29.347Z",
+        "startTime": "2018-07-20T06:35:46.848713030Z",
+        "description": "cromwell poll interval"
+      }, {
+        "endTime": "2018-07-20T04:47:40.497Z",
+        "startTime": "2018-07-20T04:47:40.496Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "description": "UpdatingJobStore",
+        "endTime": "2018-07-20T06:45:29.348Z",
+        "startTime": "2018-07-20T06:45:29.347Z"
+      }, {
+        "endTime": "2018-07-20T06:35:46.848713030Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T06:35:36.288813728Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/ataqc-0.log"
+      },
+      "start": "2018-07-20T04:47:40.013Z"
+    }],
+    "atac.macs2_pr2": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-a/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-a",
+        "instanceName": "ggp-2270909689644826045"
+      },
+      "outputs": {
+        "sig_fc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null",
+        "bfilt_npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.narrowPeak.gz",
+        "bfilt_npeak_bb": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.narrowPeak.bb",
+        "frip_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.frip.qc",
+        "sig_pval": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null",
+        "npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.narrowPeak.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-a7cc663e5a8a49cc3d9bc036f4370f1c/ENCFF442YHM.trim.merged.nodup.tn5.pr2.tagAlign.gz",
+        "cap_num_peak": 300000,
+        "mem_mb": 16000,
+        "time_hr": null,
+        "pval_thresh": 0.01,
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "disks": null,
+        "gensz": "mm",
+        "make_signal": null,
+        "smooth_win": 73
+      },
+      "backendLabels": {
+        "wdl-task-name": "macs2",
+        "wdl-call-alias": "macs2-pr2",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-call-alias": "macs2_pr2",
+        "wdl-task-name": "macs2"
+      },
+      "jobId": "operations/EMSx_q7LLBi9-5bCy4r5wR8gvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:18:09.548Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:08:42.169651066Z",
+        "description": "initializing VM",
+        "startTime": "2018-07-20T04:08:12Z"
+      }, {
+        "endTime": "2018-07-20T04:08:12Z",
+        "startTime": "2018-07-20T04:08:07Z",
+        "description": "waiting for quota"
+      }, {
+        "endTime": "2018-07-20T04:07:36.497Z",
+        "startTime": "2018-07-20T04:07:36.130Z",
+        "description": "RequestingExecutionToken"
+      }, {
+        "endTime": "2018-07-20T04:07:36.497Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:07:36.497Z"
+      }, {
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:07:36.526Z",
+        "endTime": "2018-07-20T04:08:07Z"
+      }, {
+        "startTime": "2018-07-20T04:12:31.949411523Z",
+        "endTime": "2018-07-20T04:16:38.621159439Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-20T04:07:36.526Z",
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T04:07:36.497Z"
+      }, {
+        "startTime": "2018-07-20T04:08:42.169651066Z",
+        "endTime": "2018-07-20T04:08:42.172232374Z",
+        "description": "start"
+      }, {
+        "endTime": "2018-07-20T04:18:09.547Z",
+        "description": "cromwell poll interval",
+        "startTime": "2018-07-20T04:17:00.531451193Z"
+      }, {
+        "endTime": "2018-07-20T04:18:09.547Z",
+        "startTime": "2018-07-20T04:18:09.547Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "endTime": "2018-07-20T04:12:23.573783311Z",
+        "startTime": "2018-07-20T04:08:42.172232374Z",
+        "description": "pulling-image"
+      }, {
+        "endTime": "2018-07-20T04:17:00.531451193Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:17:00.531451193Z"
+      }, {
+        "endTime": "2018-07-20T04:07:36.130Z",
+        "startTime": "2018-07-20T04:07:36.129Z",
+        "description": "Pending"
+      }, {
+        "startTime": "2018-07-20T04:12:23.573783311Z",
+        "endTime": "2018-07-20T04:12:31.949411523Z",
+        "description": "localizing-files"
+      }, {
+        "endTime": "2018-07-20T04:17:00.531451193Z",
+        "startTime": "2018-07-20T04:16:38.621159439Z",
+        "description": "delocalizing-files"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/macs2_pr2-0.log"
+      },
+      "start": "2018-07-20T04:07:36.130Z"
+    }],
+    "atac.overlap_pr": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-b",
+        "instanceName": "ggp-8321063441712317354"
+      },
+      "outputs": {
+        "bfilt_overlap_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.overlap.bfilt.narrowPeak.gz",
+        "bfilt_overlap_peak_bb": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-155eada107f68a2195912a39f5dee4bc/rep1-pr.overlap.bfilt.narrowPeak.bb",
+        "frip_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.overlap.bfilt.frip.qc",
+        "overlap_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/rep1-pr.overlap.narrowPeak.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "peak_type": "narrowPeak",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "prefix": "rep1-pr",
+        "peak2": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.narrowPeak.gz",
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "peak1": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.narrowPeak.gz",
+        "peak_pooled": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.narrowPeak.gz"
+      },
+      "backendLabels": {
+        "wdl-call-alias": "overlap-pr",
+        "wdl-task-name": "overlap",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-task-name": "overlap",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-call-alias": "overlap_pr"
+      },
+      "jobId": "operations/EIOh5q_LLBiqh4Km0OOWvXMgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:41:30.911Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:40:33.561642795Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T04:40:15.290811005Z"
+      }, {
+        "endTime": "2018-07-20T04:38:25.159647404Z",
+        "startTime": "2018-07-20T04:37:01.978632011Z",
+        "description": "pulling-image"
+      }, {
+        "endTime": "2018-07-20T04:36:38Z",
+        "startTime": "2018-07-20T04:36:28Z",
+        "description": "waiting for quota"
+      }, {
+        "description": "PreparingJob",
+        "endTime": "2018-07-20T04:36:01.527Z",
+        "startTime": "2018-07-20T04:36:01.516Z"
+      }, {
+        "endTime": "2018-07-20T04:37:01.978572175Z",
+        "startTime": "2018-07-20T04:36:38Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-20T04:38:40.291448860Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:38:25.159647404Z"
+      }, {
+        "endTime": "2018-07-20T04:36:28Z",
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:36:01.527Z"
+      }, {
+        "description": "ok",
+        "startTime": "2018-07-20T04:40:33.561642795Z",
+        "endTime": "2018-07-20T04:40:33.561642795Z"
+      }, {
+        "startTime": "2018-07-20T04:40:33.561642795Z",
+        "description": "cromwell poll interval",
+        "endTime": "2018-07-20T04:41:30.910Z"
+      }, {
+        "startTime": "2018-07-20T04:36:01.516Z",
+        "endTime": "2018-07-20T04:36:01.516Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "endTime": "2018-07-20T04:36:01.516Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:36:01.106Z"
+      }, {
+        "startTime": "2018-07-20T04:41:30.910Z",
+        "description": "UpdatingJobStore",
+        "endTime": "2018-07-20T04:41:30.911Z"
+      }, {
+        "endTime": "2018-07-20T04:37:01.978632011Z",
+        "startTime": "2018-07-20T04:37:01.978572175Z",
+        "description": "start"
+      }, {
+        "endTime": "2018-07-20T04:36:01.106Z",
+        "description": "Pending",
+        "startTime": "2018-07-20T04:36:01.106Z"
+      }, {
+        "startTime": "2018-07-20T04:38:40.291448860Z",
+        "endTime": "2018-07-20T04:40:15.290811005Z",
+        "description": "running-docker"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/overlap_pr-0.log"
+      },
+      "start": "2018-07-20T04:36:01.106Z"
+    }],
+    "atac.reproducibility_overlap": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/stdout",
+      "backendStatus": "Success",
+      "shardIndex": -1,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-b",
+        "instanceName": "ggp-15258008898314136875"
+      },
+      "outputs": {
+        "optimal_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+        "reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/overlap.reproducibility.qc",
+        "conservative_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-22e3d03fe6b8b90f0963d38f9aa9b6fa/conservative_peak.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "peaks": [],
+        "peaks_pr": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.overlap.bfilt.narrowPeak.gz"],
+        "prefix": "overlap",
+        "peak_ppr": null
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-call-alias": "reproducibility-overlap",
+        "wdl-task-name": "reproducibility"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-call-alias": "reproducibility_overlap",
+        "wdl-task-name": "reproducibility",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/ENDR-q_LLBir2o3eisjV39MBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T04:44:51.220Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap",
+      "attempt": 1,
+      "executionEvents": [{
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:43:43.984739708Z",
+        "endTime": "2018-07-20T04:43:52.103589778Z"
+      }, {
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:41:33.496Z",
+        "endTime": "2018-07-20T04:41:33.497Z"
+      }, {
+        "endTime": "2018-07-20T04:44:08.557829369Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T04:43:55.321553749Z"
+      }, {
+        "description": "cromwell poll interval",
+        "startTime": "2018-07-20T04:44:08.557829369Z",
+        "endTime": "2018-07-20T04:44:51.220Z"
+      }, {
+        "endTime": "2018-07-20T04:41:33.496Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:41:33.080Z"
+      }, {
+        "description": "ok",
+        "startTime": "2018-07-20T04:44:08.557829369Z",
+        "endTime": "2018-07-20T04:44:08.557829369Z"
+      }, {
+        "endTime": "2018-07-20T04:43:43.984739708Z",
+        "startTime": "2018-07-20T04:42:40.454431043Z",
+        "description": "pulling-image"
+      }, {
+        "endTime": "2018-07-20T04:42:40.454385179Z",
+        "startTime": "2018-07-20T04:42:12Z",
+        "description": "initializing VM"
+      }, {
+        "description": "Pending",
+        "endTime": "2018-07-20T04:41:33.080Z",
+        "startTime": "2018-07-20T04:41:33.079Z"
+      }, {
+        "description": "start",
+        "endTime": "2018-07-20T04:42:40.454431043Z",
+        "startTime": "2018-07-20T04:42:40.454385179Z"
+      }, {
+        "endTime": "2018-07-20T04:43:55.321553749Z",
+        "startTime": "2018-07-20T04:43:52.103589778Z",
+        "description": "running-docker"
+      }, {
+        "startTime": "2018-07-20T04:44:51.220Z",
+        "description": "UpdatingJobStore",
+        "endTime": "2018-07-20T04:44:51.220Z"
+      }, {
+        "endTime": "2018-07-20T04:42:12Z",
+        "startTime": "2018-07-20T04:42:02Z",
+        "description": "waiting for quota"
+      }, {
+        "endTime": "2018-07-20T04:42:02Z",
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:41:33.508Z"
+      }, {
+        "endTime": "2018-07-20T04:41:33.508Z",
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T04:41:33.497Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/reproducibility_overlap.log"
+      },
+      "start": "2018-07-20T04:41:33.080Z"
+    }],
+    "atac.filter": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-c/n1-highmem-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-c",
+        "instanceName": "ggp-11872314643736637331"
+      },
+      "outputs": {
+        "dup_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-1b4794e80f740fd50137e3a948d7ba79/ENCFF442YHM.trim.merged.dup.qc",
+        "flagstat_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.nodup.flagstat.qc",
+        "nodup_bai": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-6efbc60cb1e0959bab4e467327a9416c/ENCFF442YHM.trim.merged.filt.bam.bai",
+        "nodup_bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.nodup.bam",
+        "pbc_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-85baf8309ae5456274184b199e3a7924/ENCFF442YHM.trim.merged.dupmark.pbc.qc",
+        "mito_dup_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-464553c80b37704e09c623386a14d01f/ENCFF442YHM.trim.merged.dupmark.mito_dup.txt"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "2",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "12000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "multimapping": 4,
+        "no_dup_removal": null,
+        "mem_mb": 12000,
+        "time_hr": null,
+        "disks": null,
+        "mapq_thresh": null,
+        "cpu": 2,
+        "paired_end": true,
+        "dup_marker": null,
+        "bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.bam"
+      },
+      "backendLabels": {
+        "wdl-task-name": "filter",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "filter"
+      },
+      "jobId": "operations/EL3x5qrLLBiT39zMwui74aQBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T03:37:33.263Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T01:41:27.497Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T01:41:27.497Z"
+      }, {
+        "endTime": "2018-07-20T01:41:27.497Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T01:41:26.587Z"
+      }, {
+        "endTime": "2018-07-20T01:42:03Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-20T01:41:53Z"
+      }, {
+        "endTime": "2018-07-20T03:37:33.261Z",
+        "description": "cromwell poll interval",
+        "startTime": "2018-07-20T03:32:33.343666502Z"
+      }, {
+        "startTime": "2018-07-20T01:41:26.585Z",
+        "description": "Pending",
+        "endTime": "2018-07-20T01:41:26.587Z"
+      }, {
+        "startTime": "2018-07-20T01:42:33.527342799Z",
+        "endTime": "2018-07-20T01:42:33.527428096Z",
+        "description": "start"
+      }, {
+        "endTime": "2018-07-20T03:32:33.343666502Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T03:31:44.497622939Z"
+      }, {
+        "endTime": "2018-07-20T01:42:33.527342799Z",
+        "description": "initializing VM",
+        "startTime": "2018-07-20T01:42:03Z"
+      }, {
+        "endTime": "2018-07-20T01:44:55.437393392Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-20T01:43:43.510868339Z"
+      }, {
+        "startTime": "2018-07-20T01:41:27.511Z",
+        "endTime": "2018-07-20T01:41:53Z",
+        "description": "RunningJob"
+      }, {
+        "description": "pulling-image",
+        "startTime": "2018-07-20T01:42:33.527428096Z",
+        "endTime": "2018-07-20T01:43:43.510868339Z"
+      }, {
+        "endTime": "2018-07-20T03:37:33.261Z",
+        "startTime": "2018-07-20T03:37:33.261Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "endTime": "2018-07-20T03:31:44.497622939Z",
+        "description": "running-docker",
+        "startTime": "2018-07-20T01:44:55.437393392Z"
+      }, {
+        "endTime": "2018-07-20T03:32:33.343666502Z",
+        "description": "ok",
+        "startTime": "2018-07-20T03:32:33.343666502Z"
+      }, {
+        "description": "PreparingJob",
+        "endTime": "2018-07-20T01:41:27.511Z",
+        "startTime": "2018-07-20T01:41:27.497Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/filter-0.log"
+      },
+      "start": "2018-07-20T01:41:26.586Z"
+    }],
+    "atac.qc_report": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/stdout",
+      "backendStatus": "Success",
+      "shardIndex": -1,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-b/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-b",
+        "instanceName": "ggp-14615092633895243199"
+      },
+      "outputs": {
+        "qc_json_match": false,
+        "report": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/glob-eae855c82d0f7e2185388856e7b2cc7b/qc.html",
+        "qc_json": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/glob-3440f922973abb7a616aaf203e0db08b/qc.json"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "desc": "ATAC-seq on Mus musculus hat-challange",
+        "name": "ENCSR993QKC",
+        "frip_macs2_qcs_pr1": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.frip.qc"],
+        "overlap_reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/overlap.reproducibility.qc",
+        "frip_overlap_qcs": [],
+        "frip_macs2_qc_ppr2": null,
+        "frip_idr_qcs_pr": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.idr0.05.bfilt.frip.qc"],
+        "frip_idr_qc_ppr": null,
+        "idr_reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/idr.reproducibility.qc",
+        "frip_macs2_qcs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.frip.qc"],
+        "pipeline_type": "atac",
+        "idr_plot_ppr": null,
+        "frip_macs2_qc_pooled": null,
+        "flagstat_qcs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.flagstat.qc"],
+        "dup_qcs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-1b4794e80f740fd50137e3a948d7ba79/ENCFF442YHM.trim.merged.dup.qc"],
+        "idr_thresh": 0.05,
+        "qc_json_ref": null,
+        "xcor_scores": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-75e08482e6a5fe7a0d0013bbdfdf694c/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.qc"],
+        "frip_overlap_qc_ppr": null,
+        "pbc_qcs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-85baf8309ae5456274184b199e3a7924/ENCFF442YHM.trim.merged.dupmark.pbc.qc"],
+        "xcor_plots": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-c0eba07eee633b4055d7d9d85813fdf5/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.plot.png"],
+        "nodup_flagstat_qcs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.nodup.flagstat.qc"],
+        "idr_plots_pr": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-8da83e7748d9e54f3e082eb4aa171757/rep1-pr.idr0.05.unthresholded-peaks.txt.png"],
+        "paired_end": true,
+        "frip_overlap_qcs_pr": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.overlap.bfilt.frip.qc"],
+        "peak_caller": "macs2",
+        "frip_macs2_qcs_pr2": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.frip.qc"],
+        "frip_macs2_qc_ppr1": null,
+        "frip_idr_qcs": [],
+        "idr_plots": []
+      },
+      "backendLabels": {
+        "wdl-task-name": "qc-report",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "qc_report"
+      },
+      "jobId": "operations/EKyJkbDLLBi_m4SWkKrP6coBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T04:50:58.377Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:50:34.151721429Z",
+        "startTime": "2018-07-20T04:50:34.151721429Z",
+        "description": "ok"
+      }, {
+        "endTime": "2018-07-20T04:50:58.376Z",
+        "startTime": "2018-07-20T04:50:34.151721429Z",
+        "description": "cromwell poll interval"
+      }, {
+        "description": "PreparingJob",
+        "endTime": "2018-07-20T04:47:40.515Z",
+        "startTime": "2018-07-20T04:47:40.497Z"
+      }, {
+        "description": "waiting for quota",
+        "endTime": "2018-07-20T04:48:20Z",
+        "startTime": "2018-07-20T04:48:10Z"
+      }, {
+        "endTime": "2018-07-20T04:48:46.273149755Z",
+        "startTime": "2018-07-20T04:48:20Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-20T04:48:46.273238782Z",
+        "startTime": "2018-07-20T04:48:46.273149755Z",
+        "description": "start"
+      }, {
+        "endTime": "2018-07-20T04:50:22.009382065Z",
+        "startTime": "2018-07-20T04:50:17.785502340Z",
+        "description": "running-docker"
+      }, {
+        "startTime": "2018-07-20T04:47:40.014Z",
+        "description": "Pending",
+        "endTime": "2018-07-20T04:47:40.014Z"
+      }, {
+        "endTime": "2018-07-20T04:50:58.376Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-20T04:50:58.376Z"
+      }, {
+        "startTime": "2018-07-20T04:47:40.515Z",
+        "description": "RunningJob",
+        "endTime": "2018-07-20T04:48:10Z"
+      }, {
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:47:40.496Z",
+        "endTime": "2018-07-20T04:47:40.497Z"
+      }, {
+        "endTime": "2018-07-20T04:47:40.496Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:47:40.014Z"
+      }, {
+        "endTime": "2018-07-20T04:50:34.151721429Z",
+        "startTime": "2018-07-20T04:50:22.009382065Z",
+        "description": "delocalizing-files"
+      }, {
+        "endTime": "2018-07-20T04:50:17.785502340Z",
+        "startTime": "2018-07-20T04:49:53.330642615Z",
+        "description": "localizing-files"
+      }, {
+        "description": "pulling-image",
+        "endTime": "2018-07-20T04:49:53.330642615Z",
+        "startTime": "2018-07-20T04:48:46.273238782Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/qc_report.log"
+      },
+      "start": "2018-07-20T04:47:40.014Z"
+    }],
+    "atac.reproducibility_idr": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/stdout",
+      "backendStatus": "Success",
+      "shardIndex": -1,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-c/n1-standard-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-c",
+        "instanceName": "ggp-1346130755605453611"
+      },
+      "outputs": {
+        "optimal_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+        "conservative_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-22e3d03fe6b8b90f0963d38f9aa9b6fa/conservative_peak.gz",
+        "reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/idr.reproducibility.qc"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "4000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "peaks_pr": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.idr0.05.bfilt.narrowPeak.gz"],
+        "prefix": "idr",
+        "peaks": [],
+        "peak_ppr": null
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-call-alias": "reproducibility-idr",
+        "wdl-task-name": "reproducibility"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-call-alias": "reproducibility_idr",
+        "wdl-task-name": "reproducibility",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/EIjwhrDLLBirtt2opNma1xIgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:47:37.794Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:45:51.193300715Z",
+        "startTime": "2018-07-20T04:45:51.193199130Z",
+        "description": "start"
+      }, {
+        "startTime": "2018-07-20T04:44:55.513Z",
+        "endTime": "2018-07-20T04:45:23Z",
+        "description": "RunningJob"
+      }, {
+        "endTime": "2018-07-20T04:47:03.672963674Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:46:58.013105817Z"
+      }, {
+        "description": "cromwell poll interval",
+        "endTime": "2018-07-20T04:47:37.793Z",
+        "startTime": "2018-07-20T04:47:19.673527173Z"
+      }, {
+        "endTime": "2018-07-20T04:47:37.793Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-20T04:47:37.793Z"
+      }, {
+        "description": "delocalizing-files",
+        "endTime": "2018-07-20T04:47:19.673527173Z",
+        "startTime": "2018-07-20T04:47:06.164906294Z"
+      }, {
+        "endTime": "2018-07-20T04:47:06.164906294Z",
+        "startTime": "2018-07-20T04:47:03.672963674Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-20T04:45:27Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-20T04:45:23Z"
+      }, {
+        "endTime": "2018-07-20T04:44:55.230Z",
+        "description": "Pending",
+        "startTime": "2018-07-20T04:44:55.229Z"
+      }, {
+        "endTime": "2018-07-20T04:45:51.193199130Z",
+        "description": "initializing VM",
+        "startTime": "2018-07-20T04:45:27Z"
+      }, {
+        "endTime": "2018-07-20T04:46:58.013105817Z",
+        "description": "pulling-image",
+        "startTime": "2018-07-20T04:45:51.193300715Z"
+      }, {
+        "endTime": "2018-07-20T04:44:55.506Z",
+        "startTime": "2018-07-20T04:44:55.506Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "endTime": "2018-07-20T04:44:55.506Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:44:55.230Z"
+      }, {
+        "endTime": "2018-07-20T04:44:55.513Z",
+        "startTime": "2018-07-20T04:44:55.506Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-20T04:47:19.673527173Z",
+        "startTime": "2018-07-20T04:47:19.673527173Z",
+        "description": "ok"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/reproducibility_idr.log"
+      },
+      "start": "2018-07-20T04:44:55.230Z"
+    }],
+    "atac.macs2": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-c/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-c",
+        "instanceName": "ggp-623271888314630982"
+      },
+      "outputs": {
+        "sig_fc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-8876d8ced974dc46a0c7a4fac20a3a95/ENCFF442YHM.trim.merged.nodup.tn5.fc.signal.bigwig",
+        "bfilt_npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.narrowPeak.gz",
+        "bfilt_npeak_bb": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.narrowPeak.bb",
+        "frip_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.frip.qc",
+        "sig_pval": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-7ab0340dfeb10ca109917cbdcc568548/ENCFF442YHM.trim.merged.nodup.tn5.pval.signal.bigwig",
+        "npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.narrowPeak.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "cap_num_peak": 300000,
+        "mem_mb": 16000,
+        "time_hr": null,
+        "pval_thresh": 0.01,
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "disks": null,
+        "gensz": "mm",
+        "make_signal": true,
+        "smooth_win": 73
+      },
+      "backendLabels": {
+        "wdl-task-name": "macs2",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-task-name": "macs2",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/EIf8567LLBjGhuzrrs-T0wggvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:35:57.035Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "description": "PreparingJob",
+        "startTime": "2018-07-20T04:01:32.515Z",
+        "endTime": "2018-07-20T04:01:32.532Z"
+      }, {
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:03:48.143425768Z",
+        "endTime": "2018-07-20T04:03:57.156870867Z"
+      }, {
+        "endTime": "2018-07-20T04:32:48.532668330Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T04:32:17.957093605Z"
+      }, {
+        "endTime": "2018-07-20T04:32:17.957093605Z",
+        "description": "running-docker",
+        "startTime": "2018-07-20T04:03:57.156870867Z"
+      }, {
+        "endTime": "2018-07-20T04:02:08Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-20T04:01:59Z"
+      }, {
+        "endTime": "2018-07-20T04:01:32.506Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:01:32.232Z"
+      }, {
+        "description": "pulling-image",
+        "endTime": "2018-07-20T04:03:48.143425768Z",
+        "startTime": "2018-07-20T04:02:36.269290169Z"
+      }, {
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:01:32.506Z",
+        "endTime": "2018-07-20T04:01:32.515Z"
+      }, {
+        "description": "RunningJob",
+        "endTime": "2018-07-20T04:01:59Z",
+        "startTime": "2018-07-20T04:01:32.532Z"
+      }, {
+        "description": "Pending",
+        "endTime": "2018-07-20T04:01:32.232Z",
+        "startTime": "2018-07-20T04:01:32.232Z"
+      }, {
+        "endTime": "2018-07-20T04:35:57.033Z",
+        "startTime": "2018-07-20T04:32:48.532668330Z",
+        "description": "cromwell poll interval"
+      }, {
+        "endTime": "2018-07-20T04:02:36.269158413Z",
+        "startTime": "2018-07-20T04:02:08Z",
+        "description": "initializing VM"
+      }, {
+        "description": "start",
+        "endTime": "2018-07-20T04:02:36.269290169Z",
+        "startTime": "2018-07-20T04:02:36.269158413Z"
+      }, {
+        "endTime": "2018-07-20T04:35:57.034Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-20T04:35:57.033Z"
+      }, {
+        "endTime": "2018-07-20T04:32:48.532668330Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:32:48.532668330Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/macs2-0.log"
+      },
+      "start": "2018-07-20T04:01:32.232Z"
+    }],
+    "atac.xcor": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-c/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-c",
+        "instanceName": "ggp-1350064367204579283"
+      },
+      "outputs": {
+        "score": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-75e08482e6a5fe7a0d0013bbdfdf694c/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.qc",
+        "fraglen": 0,
+        "plot_png": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-c0eba07eee633b4055d7d9d85813fdf5/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.plot.png",
+        "plot_pdf": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-febe739b0bd718b63be38dddfffc9043/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.plot.pdf"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "2",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "subsample": null,
+        "mem_mb": null,
+        "time_hr": null,
+        "disks": null,
+        "cpu": null,
+        "paired_end": true
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "xcor"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "xcor"
+      },
+      "jobId": "operations/EPL6567LLBjT75C5uYyZ3hIgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:17:35.954Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "description": "cromwell poll interval",
+        "endTime": "2018-07-20T04:17:35.953Z",
+        "startTime": "2018-07-20T04:15:07Z"
+      }, {
+        "startTime": "2018-07-20T04:01:32.227Z",
+        "description": "RequestingExecutionToken",
+        "endTime": "2018-07-20T04:01:32.506Z"
+      }, {
+        "description": "delocalizing-files",
+        "endTime": "2018-07-20T04:15:06.736221910Z",
+        "startTime": "2018-07-20T04:14:51.096408633Z"
+      }, {
+        "startTime": "2018-07-20T04:01:32.507Z",
+        "endTime": "2018-07-20T04:01:32.548Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-20T04:02:54.778314457Z",
+        "description": "initializing VM",
+        "startTime": "2018-07-20T04:02:09Z"
+      }, {
+        "endTime": "2018-07-20T04:01:32.507Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:01:32.506Z"
+      }, {
+        "endTime": "2018-07-20T04:03:47.316961993Z",
+        "startTime": "2018-07-20T04:02:54.778381698Z",
+        "description": "pulling-image"
+      }, {
+        "description": "start",
+        "startTime": "2018-07-20T04:02:54.778314457Z",
+        "endTime": "2018-07-20T04:02:54.778381698Z"
+      }, {
+        "endTime": "2018-07-20T04:14:51.096408633Z",
+        "startTime": "2018-07-20T04:03:53.398311712Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-20T04:15:07Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:15:06.736221910Z"
+      }, {
+        "endTime": "2018-07-20T04:03:53.398311712Z",
+        "startTime": "2018-07-20T04:03:47.316961993Z",
+        "description": "localizing-files"
+      }, {
+        "startTime": "2018-07-20T04:01:32.548Z",
+        "description": "RunningJob",
+        "endTime": "2018-07-20T04:01:59Z"
+      }, {
+        "endTime": "2018-07-20T04:02:09Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-20T04:01:59Z"
+      }, {
+        "startTime": "2018-07-20T04:17:35.953Z",
+        "endTime": "2018-07-20T04:17:35.953Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "endTime": "2018-07-20T04:01:32.227Z",
+        "description": "Pending",
+        "startTime": "2018-07-20T04:01:32.226Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/xcor-0.log"
+      },
+      "start": "2018-07-20T04:01:32.226Z"
+    }],
+    "atac.trim_adapter": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-c/n1-highmem-2",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-c",
+        "instanceName": "ggp-2945913042706125144"
+      },
+      "outputs": {
+        "trimmed_merged_fastqs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R1_ENCFF442YHM.trim.merged.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R2_ENCFF379WRX.trim.merged.fastq.gz"]
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "2",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "12000.0 MB"
+      },
+      "callCaching": {
+        "effectiveCallCachingMode": "CallCachingOff",
+        "allowResultReuse": false
+      },
+      "inputs": {
+        "auto_detect_adapter": true,
+        "fastqs": [["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_1/ENCFF442YHM.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_2/ENCFF379WRX.fastq.gz"], ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_1/ENCFF177WUQ.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_2/ENCFF688QCB.fastq.gz"]],
+        "mem_mb": null,
+        "time_hr": null,
+        "disks": null,
+        "cpu": 2,
+        "paired_end": true,
+        "adapters": [],
+        "err_rate": null,
+        "min_trim_len": null
+      },
+      "backendLabels": {
+        "wdl-task-name": "trim-adapter",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "trim_adapter"
+      },
+      "jobId": "operations/EM6exKLLLBjYosGN3on_8Cggvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-19T21:56:11.988Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-19T21:56:11.987Z",
+        "description": "UpdatingJobStore",
+        "startTime": "2018-07-19T21:56:11.987Z"
+      }, {
+        "endTime": "2018-07-19T20:52:22.508Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-19T20:52:22.507Z"
+      }, {
+        "endTime": "2018-07-19T20:52:58Z",
+        "startTime": "2018-07-19T20:52:48Z",
+        "description": "waiting for quota"
+      }, {
+        "description": "running-docker",
+        "endTime": "2018-07-19T21:46:45.390419702Z",
+        "startTime": "2018-07-19T20:56:47.426609307Z"
+      }, {
+        "endTime": "2018-07-19T20:56:47.426609307Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-19T20:55:53.074763595Z"
+      }, {
+        "endTime": "2018-07-19T20:55:53.074763595Z",
+        "startTime": "2018-07-19T20:53:24.624538163Z",
+        "description": "pulling-image"
+      }, {
+        "startTime": "2018-07-19T20:53:24.624442080Z",
+        "description": "start",
+        "endTime": "2018-07-19T20:53:24.624538163Z"
+      }, {
+        "endTime": "2018-07-19T21:56:11.987Z",
+        "description": "cromwell poll interval",
+        "startTime": "2018-07-19T21:47:15.588339506Z"
+      }, {
+        "startTime": "2018-07-19T20:52:22.474Z",
+        "description": "Pending",
+        "endTime": "2018-07-19T20:52:22.475Z"
+      }, {
+        "endTime": "2018-07-19T20:52:48Z",
+        "startTime": "2018-07-19T20:52:22.538Z",
+        "description": "RunningJob"
+      }, {
+        "endTime": "2018-07-19T21:47:15.588339506Z",
+        "startTime": "2018-07-19T21:47:15.588339506Z",
+        "description": "ok"
+      }, {
+        "startTime": "2018-07-19T21:46:45.390419702Z",
+        "endTime": "2018-07-19T21:47:15.588339506Z",
+        "description": "delocalizing-files"
+      }, {
+        "endTime": "2018-07-19T20:52:22.507Z",
+        "startTime": "2018-07-19T20:52:22.475Z",
+        "description": "RequestingExecutionToken"
+      }, {
+        "endTime": "2018-07-19T20:53:24.624442080Z",
+        "startTime": "2018-07-19T20:52:58Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-19T20:52:22.538Z",
+        "startTime": "2018-07-19T20:52:22.508Z",
+        "description": "PreparingJob"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/trim_adapter-0.log"
+      },
+      "start": "2018-07-19T20:52:22.474Z"
+    }],
+    "atac.spr": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-central1-c/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-central1-c",
+        "instanceName": "ggp-8362843571801812222"
+      },
+      "outputs": {
+        "ta_pr1": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-478c0ad30d0d033ce59a75ef84dab32e/ENCFF442YHM.trim.merged.nodup.tn5.pr1.tagAlign.gz",
+        "ta_pr2": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-a7cc663e5a8a49cc3d9bc036f4370f1c/ENCFF442YHM.trim.merged.nodup.tn5.pr2.tagAlign.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 50 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "mem_mb": null,
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz",
+        "paired_end": true
+      },
+      "backendLabels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "spr"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-task-name": "spr",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/EPb6567LLBj-2Z_Lub2yh3Qgvcv_iN8bKg9wcm9kdWN0aW9uUXVldWU",
+      "backend": "google",
+      "end": "2018-07-20T04:07:34.311Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:07:34.311Z",
+        "startTime": "2018-07-20T04:07:34.310Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "endTime": "2018-07-20T04:01:59Z",
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:01:32.536Z"
+      }, {
+        "endTime": "2018-07-20T04:05:49.964004268Z",
+        "startTime": "2018-07-20T04:03:51.335011459Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-20T04:07:34.310Z",
+        "startTime": "2018-07-20T04:06:04.075885478Z",
+        "description": "cromwell poll interval"
+      }, {
+        "endTime": "2018-07-20T04:06:04.075885478Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:06:04.075885478Z"
+      }, {
+        "description": "start",
+        "startTime": "2018-07-20T04:02:32.012004513Z",
+        "endTime": "2018-07-20T04:02:32.012107616Z"
+      }, {
+        "endTime": "2018-07-20T04:01:32.536Z",
+        "startTime": "2018-07-20T04:01:32.512Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-20T04:01:32.506Z",
+        "description": "RequestingExecutionToken",
+        "startTime": "2018-07-20T04:01:32.228Z"
+      }, {
+        "endTime": "2018-07-20T04:01:32.512Z",
+        "startTime": "2018-07-20T04:01:32.506Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "startTime": "2018-07-20T04:01:59Z",
+        "description": "waiting for quota",
+        "endTime": "2018-07-20T04:02:10Z"
+      }, {
+        "endTime": "2018-07-20T04:02:32.012004513Z",
+        "startTime": "2018-07-20T04:02:10Z",
+        "description": "initializing VM"
+      }, {
+        "startTime": "2018-07-20T04:03:44.029362637Z",
+        "description": "localizing-files",
+        "endTime": "2018-07-20T04:03:51.335011459Z"
+      }, {
+        "endTime": "2018-07-20T04:03:44.029362637Z",
+        "description": "pulling-image",
+        "startTime": "2018-07-20T04:02:32.012107616Z"
+      }, {
+        "description": "Pending",
+        "endTime": "2018-07-20T04:01:32.228Z",
+        "startTime": "2018-07-20T04:01:32.227Z"
+      }, {
+        "endTime": "2018-07-20T04:06:04.075885478Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T04:05:49.964004268Z"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/spr-0.log"
+      },
+      "start": "2018-07-20T04:01:32.228Z"
+    }],
+    "atac.macs2_pr1": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-a/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-a",
+        "instanceName": "ggp-9735520089167070931"
+      },
+      "outputs": {
+        "sig_fc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null",
+        "bfilt_npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.narrowPeak.gz",
+        "bfilt_npeak_bb": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.narrowPeak.bb",
+        "frip_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.frip.qc",
+        "sig_pval": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null",
+        "npeak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.narrowPeak.gz"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "1",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+        "ta": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-478c0ad30d0d033ce59a75ef84dab32e/ENCFF442YHM.trim.merged.nodup.tn5.pr1.tagAlign.gz",
+        "cap_num_peak": 300000,
+        "mem_mb": 16000,
+        "time_hr": null,
+        "pval_thresh": 0.01,
+        "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+        "disks": null,
+        "gensz": "mm",
+        "make_signal": null,
+        "smooth_win": 73
+      },
+      "backendLabels": {
+        "wdl-task-name": "macs2",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-call-alias": "macs2-pr1"
+      },
+      "returnCode": 0,
+      "labels": {
+        "wdl-task-name": "macs2",
+        "wdl-call-alias": "macs2_pr1",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "jobId": "operations/EL-x_q7LLBjTje7Tiv7gjYcBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T04:16:29.449Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-20T04:15:59.191597060Z",
+        "startTime": "2018-07-20T04:11:24.554422283Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-20T04:11:24.554422283Z",
+        "description": "localizing-files",
+        "startTime": "2018-07-20T04:11:16.377396435Z"
+      }, {
+        "endTime": "2018-07-20T04:07:36.497Z",
+        "startTime": "2018-07-20T04:07:36.136Z",
+        "description": "RequestingExecutionToken"
+      }, {
+        "endTime": "2018-07-20T04:08:38.578573411Z",
+        "startTime": "2018-07-20T04:08:11Z",
+        "description": "initializing VM"
+      }, {
+        "endTime": "2018-07-20T04:07:36.136Z",
+        "startTime": "2018-07-20T04:07:36.136Z",
+        "description": "Pending"
+      }, {
+        "startTime": "2018-07-20T04:08:07Z",
+        "endTime": "2018-07-20T04:08:11Z",
+        "description": "waiting for quota"
+      }, {
+        "endTime": "2018-07-20T04:16:29.451Z",
+        "startTime": "2018-07-20T04:16:29.449Z",
+        "description": "UpdatingJobStore"
+      }, {
+        "endTime": "2018-07-20T04:07:36.506Z",
+        "startTime": "2018-07-20T04:07:36.497Z",
+        "description": "PreparingJob"
+      }, {
+        "startTime": "2018-07-20T04:08:38.578573411Z",
+        "description": "start",
+        "endTime": "2018-07-20T04:08:38.578665130Z"
+      }, {
+        "startTime": "2018-07-20T04:08:38.578665130Z",
+        "description": "pulling-image",
+        "endTime": "2018-07-20T04:11:16.377396435Z"
+      }, {
+        "description": "RunningJob",
+        "startTime": "2018-07-20T04:07:36.506Z",
+        "endTime": "2018-07-20T04:08:07Z"
+      }, {
+        "endTime": "2018-07-20T04:07:36.497Z",
+        "description": "WaitingForValueStore",
+        "startTime": "2018-07-20T04:07:36.497Z"
+      }, {
+        "startTime": "2018-07-20T04:15:59.191597060Z",
+        "endTime": "2018-07-20T04:16:25.164302835Z",
+        "description": "delocalizing-files"
+      }, {
+        "endTime": "2018-07-20T04:16:25.164302835Z",
+        "description": "ok",
+        "startTime": "2018-07-20T04:16:25.164302835Z"
+      }, {
+        "startTime": "2018-07-20T04:16:25.164302835Z",
+        "endTime": "2018-07-20T04:16:29.449Z",
+        "description": "cromwell poll interval"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/macs2_pr1-0.log"
+      },
+      "start": "2018-07-20T04:07:36.136Z"
+    }],
+    "atac.bowtie2": [{
+      "preemptible": false,
+      "executionStatus": "Done",
+      "stdout": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/stdout",
+      "backendStatus": "Success",
+      "shardIndex": 0,
+      "jes": {
+        "endpointUrl": "https://genomics.googleapis.com/",
+        "machineType": "us-west1-c/n1-highmem-4",
+        "googleProject": "hic-pipeline",
+        "executionBucket": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution",
+        "zone": "us-west1-c",
+        "instanceName": "ggp-10679995843060328619"
+      },
+      "outputs": {
+        "flagstat_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.flagstat.qc",
+        "align_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-2b79af24cb30a9eaebb132920a58f9c5/ENCFF442YHM.trim.merged.align.log",
+        "read_len_log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-773fb92850749a2b4a829cf3c8c4de27/ENCFF379WRX.trim.merged.read_length.txt",
+        "bai": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-6efbc60cb1e0959bab4e467327a9416c/ENCFF442YHM.trim.merged.bam.bai",
+        "bam": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.bam"
+      },
+      "runtimeAttributes": {
+        "preemptible": "0",
+        "failOnStderr": "false",
+        "bootDiskSizeGb": "10",
+        "disks": "local-disk 100 HDD",
+        "continueOnReturnCode": "0",
+        "docker": "quay.io/encode-dcc/atac-seq-pipeline:v1",
+        "maxRetries": "0",
+        "cpu": "4",
+        "cpuMin": "1",
+        "noAddress": "false",
+        "zones": "us-west1-a,us-west1-b,us-west1-c,us-central1-c,us-central1-b",
+        "memoryMin": "2048.0 MB",
+        "memory": "16000.0 MB"
+      },
+      "callCaching": {
+        "allowResultReuse": false,
+        "effectiveCallCachingMode": "CallCachingOff"
+      },
+      "inputs": {
+        "fastqs": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R1_ENCFF442YHM.trim.merged.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R2_ENCFF379WRX.trim.merged.fastq.gz"],
+        "multimapping": 4,
+        "mem_mb": 16000,
+        "time_hr": null,
+        "disks": null,
+        "score_min": null,
+        "cpu": 4,
+        "paired_end": true,
+        "idx_tar": "gs://encode-pipeline-genome-data/mm10/bowtie2_index/mm10_no_alt_analysis_set_ENCODE.fasta.tar"
+      },
+      "backendLabels": {
+        "wdl-task-name": "bowtie2",
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+      },
+      "returnCode": 0,
+      "labels": {
+        "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938",
+        "wdl-task-name": "bowtie2"
+      },
+      "jobId": "operations/EJCyrqTLLBir0YnipfS9m5QBIL3L_4jfGyoPcHJvZHVjdGlvblF1ZXVl",
+      "backend": "google",
+      "end": "2018-07-20T01:41:21.318Z",
+      "dockerImageUsed": "quay.io/encode-dcc/atac-seq-pipeline@sha256:97940d0951cf2c3df554584f18ee8e6f1ac9bd39aa39326c6a0f7110d8037398",
+      "stderr": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/stderr",
+      "callRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0",
+      "attempt": 1,
+      "executionEvents": [{
+        "endTime": "2018-07-19T21:56:13.267Z",
+        "description": "Pending",
+        "startTime": "2018-07-19T21:56:13.266Z"
+      }, {
+        "description": "ok",
+        "endTime": "2018-07-20T01:34:24.676176601Z",
+        "startTime": "2018-07-20T01:34:24.676176601Z"
+      }, {
+        "endTime": "2018-07-19T21:56:54Z",
+        "description": "waiting for quota",
+        "startTime": "2018-07-19T21:56:44Z"
+      }, {
+        "endTime": "2018-07-19T21:58:30.131044080Z",
+        "description": "pulling-image",
+        "startTime": "2018-07-19T21:57:29.220740345Z"
+      }, {
+        "description": "initializing VM",
+        "startTime": "2018-07-19T21:56:54Z",
+        "endTime": "2018-07-19T21:57:29.220663926Z"
+      }, {
+        "description": "RunningJob",
+        "startTime": "2018-07-19T21:56:13.520Z",
+        "endTime": "2018-07-19T21:56:44Z"
+      }, {
+        "endTime": "2018-07-20T01:32:22.334402608Z",
+        "startTime": "2018-07-19T22:00:12.524856077Z",
+        "description": "running-docker"
+      }, {
+        "endTime": "2018-07-19T21:56:13.520Z",
+        "startTime": "2018-07-19T21:56:13.508Z",
+        "description": "PreparingJob"
+      }, {
+        "endTime": "2018-07-19T22:00:12.524856077Z",
+        "startTime": "2018-07-19T21:58:30.131044080Z",
+        "description": "localizing-files"
+      }, {
+        "endTime": "2018-07-19T21:56:13.507Z",
+        "startTime": "2018-07-19T21:56:13.267Z",
+        "description": "RequestingExecutionToken"
+      }, {
+        "endTime": "2018-07-20T01:34:24.676176601Z",
+        "description": "delocalizing-files",
+        "startTime": "2018-07-20T01:32:22.334402608Z"
+      }, {
+        "endTime": "2018-07-19T21:57:29.220740345Z",
+        "description": "start",
+        "startTime": "2018-07-19T21:57:29.220663926Z"
+      }, {
+        "startTime": "2018-07-19T21:56:13.507Z",
+        "endTime": "2018-07-19T21:56:13.508Z",
+        "description": "WaitingForValueStore"
+      }, {
+        "startTime": "2018-07-20T01:34:24.676176601Z",
+        "description": "cromwell poll interval",
+        "endTime": "2018-07-20T01:41:21.316Z"
+      }, {
+        "endTime": "2018-07-20T01:41:21.316Z",
+        "startTime": "2018-07-20T01:41:21.316Z",
+        "description": "UpdatingJobStore"
+      }],
+      "backendLogs": {
+        "log": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/bowtie2-0.log"
+      },
+      "start": "2018-07-19T21:56:13.267Z"
+    }]
+  },
+  "outputs": {
+    "atac.idr_pr.idr_peak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/rep1-pr.idr0.05.narrowPeak.gz"],
+    "atac.macs2_pr2.bfilt_npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.narrowPeak.gz"],
+    "atac.macs2_ppr1.frip_qc": null,
+    "atac.macs2_ppr2.bfilt_npeak_bb": null,
+    "atac.macs2_pr2.bfilt_npeak_bb": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.narrowPeak.bb"],
+    "atac.reproducibility_idr.reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/idr.reproducibility.qc",
+    "atac.macs2_ppr1.npeak": null,
+    "atac.idr.idr_unthresholded_peak": [],
+    "atac.reproducibility_overlap.optimal_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+    "atac.idr_ppr.idr_log": null,
+    "atac.bam2ta.ta": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bam2ta/shard-0/glob-199637d3015dccbe277f621a18be9eb4/ENCFF442YHM.trim.merged.nodup.tn5.tagAlign.gz"],
+    "atac.filter.nodup_bai": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-6efbc60cb1e0959bab4e467327a9416c/ENCFF442YHM.trim.merged.filt.bam.bai"],
+    "atac.macs2_pr1.frip_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.frip.qc"],
+    "atac.qc_report.qc_json_match": false,
+    "atac.filter.flagstat_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.nodup.flagstat.qc"],
+    "atac.overlap_ppr.frip_qc": null,
+    "atac.ataqc.html": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/glob-47eccad02a94d57a391dcc7587d65007/ENCFF442YHM.trim.merged_qc.html"],
+    "atac.macs2.sig_fc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-8876d8ced974dc46a0c7a4fac20a3a95/ENCFF442YHM.trim.merged.nodup.tn5.fc.signal.bigwig"],
+    "atac.idr_ppr.bfilt_idr_peak": null,
+    "atac.trim_adapter.trimmed_merged_fastqs": [["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R1_ENCFF442YHM.trim.merged.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-trim_adapter/shard-0/glob-4f26c666d13d1cb48973da7f646a7de2/merge_fastqs_R2_ENCFF379WRX.trim.merged.fastq.gz"]],
+    "atac.bowtie2.bai": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-6efbc60cb1e0959bab4e467327a9416c/ENCFF442YHM.trim.merged.bam.bai"],
+    "atac.idr_pr.idr_log": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-c94d492e4d5a9e6759399733eb456839/rep1-pr.idr0.05.log"],
+    "atac.xcor.plot_pdf": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-febe739b0bd718b63be38dddfffc9043/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.plot.pdf"],
+    "atac.pool_ta.ta_pooled": null,
+    "atac.idr.bfilt_idr_peak_bb": [],
+    "atac.filter.nodup_bam": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.nodup.bam"],
+    "atac.idr.idr_log": [],
+    "atac.idr_pr.idr_unthresholded_peak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-b34256f7f8497ceb77fad19f39663af0/rep1-pr.idr0.05.unthresholded-peaks.txt.gz"],
+    "atac.macs2.npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.narrowPeak.gz"],
+    "atac.pool_ta_pr1.ta_pooled": null,
+    "atac.overlap.overlap_peak": [],
+    "atac.bowtie2.bam": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-3bcbe4e7489c90f75e0523ac6f3a9385/ENCFF442YHM.trim.merged.bam"],
+    "atac.macs2_pooled.bfilt_npeak": null,
+    "atac.spr.ta_pr1": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-478c0ad30d0d033ce59a75ef84dab32e/ENCFF442YHM.trim.merged.nodup.tn5.pr1.tagAlign.gz"],
+    "atac.idr.frip_qc": [],
+    "atac.macs2_pr2.sig_pval": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null"],
+    "atac.overlap.frip_qc": [],
+    "atac.bowtie2.flagstat_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-e2a84eed5523fc4955f617236139026c/ENCFF442YHM.trim.merged.flagstat.qc"],
+    "atac.idr_pr.idr_plot": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-8da83e7748d9e54f3e082eb4aa171757/rep1-pr.idr0.05.unthresholded-peaks.txt.png"],
+    "atac.pool_ta_pr2.ta_pooled": null,
+    "atac.overlap_pr.overlap_peak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/rep1-pr.overlap.narrowPeak.gz"],
+    "atac.macs2_pr1.npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.narrowPeak.gz"],
+    "atac.qc_report.qc_json": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/glob-3440f922973abb7a616aaf203e0db08b/qc.json",
+    "atac.idr_pr.bfilt_idr_peak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.idr0.05.bfilt.narrowPeak.gz"],
+    "atac.filter.dup_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-1b4794e80f740fd50137e3a948d7ba79/ENCFF442YHM.trim.merged.dup.qc"],
+    "atac.idr_ppr.idr_plot": null,
+    "atac.reproducibility_idr.optimal_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-7e80d6aff4c56096bd9874ae33569396/optimal_peak.gz",
+    "atac.idr_ppr.idr_peak": null,
+    "atac.overlap_ppr.overlap_peak": null,
+    "atac.xcor.plot_png": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-c0eba07eee633b4055d7d9d85813fdf5/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.plot.png"],
+    "atac.macs2_pooled.sig_fc": null,
+    "atac.reproducibility_idr.conservative_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_idr/glob-22e3d03fe6b8b90f0963d38f9aa9b6fa/conservative_peak.gz",
+    "atac.macs2_ppr2.sig_pval": null,
+    "atac.bowtie2.align_log": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-2b79af24cb30a9eaebb132920a58f9c5/ENCFF442YHM.trim.merged.align.log"],
+    "atac.ataqc.txt": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-ataqc/shard-0/glob-add762cb3e49a6937f1540db118fa0c8/ENCFF442YHM.trim.merged_qc.txt"],
+    "atac.idr_ppr.frip_qc": null,
+    "atac.overlap_pr.frip_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.overlap.bfilt.frip.qc"],
+    "atac.macs2_pr2.frip_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.bfilt.frip.qc"],
+    "atac.overlap_pr.bfilt_overlap_peak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/rep1-pr.overlap.bfilt.narrowPeak.gz"],
+    "atac.macs2_pr1.sig_fc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null"],
+    "atac.idr_ppr.idr_unthresholded_peak": null,
+    "atac.spr.ta_pr2": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-spr/shard-0/glob-a7cc663e5a8a49cc3d9bc036f4370f1c/ENCFF442YHM.trim.merged.nodup.tn5.pr2.tagAlign.gz"],
+    "atac.macs2_ppr2.npeak": null,
+    "atac.macs2_pooled.npeak": null,
+    "atac.macs2_ppr2.sig_fc": null,
+    "atac.idr.bfilt_idr_peak": [],
+    "atac.macs2_ppr1.bfilt_npeak": null,
+    "atac.macs2_pooled.bfilt_npeak_bb": null,
+    "atac.idr_pr.bfilt_idr_peak_bb": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-155eada107f68a2195912a39f5dee4bc/rep1-pr.idr0.05.bfilt.narrowPeak.bb"],
+    "atac.macs2_pr1.bfilt_npeak_bb": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.narrowPeak.bb"],
+    "atac.overlap.bfilt_overlap_peak_bb": [],
+    "atac.reproducibility_overlap.reproducibility_qc": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-2e0755477c7b64fb4cd35cd75c0b0f2a/overlap.reproducibility.qc",
+    "atac.idr_ppr.bfilt_idr_peak_bb": null,
+    "atac.overlap.bfilt_overlap_peak": [],
+    "atac.overlap_ppr.bfilt_overlap_peak_bb": null,
+    "atac.overlap_ppr.bfilt_overlap_peak": null,
+    "atac.macs2_pooled.sig_pval": null,
+    "atac.macs2_ppr2.frip_qc": null,
+    "atac.macs2_ppr1.sig_pval": null,
+    "atac.macs2_ppr2.bfilt_npeak": null,
+    "atac.macs2_ppr1.sig_fc": null,
+    "atac.idr.idr_plot": [],
+    "atac.idr.idr_peak": [],
+    "atac.xcor.score": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-xcor/shard-0/glob-75e08482e6a5fe7a0d0013bbdfdf694c/ENCFF442YHM.trim.merged.nodup.tn5.no_chrM.R1.25M.cc.qc"],
+    "atac.overlap_pr.bfilt_overlap_peak_bb": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-overlap_pr/shard-0/glob-155eada107f68a2195912a39f5dee4bc/rep1-pr.overlap.bfilt.narrowPeak.bb"],
+    "atac.reproducibility_overlap.conservative_peak": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-reproducibility_overlap/glob-22e3d03fe6b8b90f0963d38f9aa9b6fa/conservative_peak.gz",
+    "atac.idr_pr.frip_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-idr_pr/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/rep1-pr.idr0.05.bfilt.frip.qc"],
+    "atac.macs2_ppr1.bfilt_npeak_bb": null,
+    "atac.macs2_pr1.bfilt_npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pr1.pval0.01.300K.bfilt.narrowPeak.gz"],
+    "atac.xcor.fraglen": [0],
+    "atac.macs2_pr2.npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-254907fcd430d7e6c9bf67ac4585adb4/ENCFF442YHM.trim.merged.nodup.tn5.pr2.pval0.01.300K.narrowPeak.gz"],
+    "atac.macs2.bfilt_npeak": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-2e6c87fc90e45fa5dbda88934d454cd3/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.narrowPeak.gz"],
+    "atac.filter.mito_dup_log": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-464553c80b37704e09c623386a14d01f/ENCFF442YHM.trim.merged.dupmark.mito_dup.txt"],
+    "atac.macs2.bfilt_npeak_bb": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-155eada107f68a2195912a39f5dee4bc/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.narrowPeak.bb"],
+    "atac.macs2_pooled.frip_qc": null,
+    "atac.filter.pbc_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-filter/shard-0/glob-85baf8309ae5456274184b199e3a7924/ENCFF442YHM.trim.merged.dupmark.pbc.qc"],
+    "atac.macs2_pr1.sig_pval": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr1/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null"],
+    "atac.qc_report.report": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-qc_report/glob-eae855c82d0f7e2185388856e7b2cc7b/qc.html",
+    "atac.read_genome_tsv.genome": {
+      "blacklist": "gs://encode-pipeline-genome-data/mm10/mm10.blacklist.bed.gz",
+      "enh": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_enh_dhs_ucsc.bed.gz",
+      "ref_fa": "gs://encode-pipeline-genome-data/mm10/mm10_no_alt_analysis_set_ENCODE.fasta.gz",
+      "reg2map": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_formatted.txt.gz",
+      "bwa_idx_tar": "gs://encode-pipeline-genome-data/mm10/bwa_index/mm10_no_alt_analysis_set_ENCODE.fasta.tar",
+      "roadmap_meta": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_dnase_avg_fseq_signal_metadata.txt",
+      "chrsz": "gs://encode-pipeline-genome-data/mm10/mm10.chrom.sizes",
+      "bowtie2_idx_tar": "gs://encode-pipeline-genome-data/mm10/bowtie2_index/mm10_no_alt_analysis_set_ENCODE.fasta.tar",
+      "reg2map_bed": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_celltype_compare_subsample.bed.gz",
+      "gensz": "mm",
+      "tss_enrich": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_gencode_tss_unique.bed.gz",
+      "prom": "gs://encode-pipeline-genome-data/mm10/ataqc/tss_mm10_master.bed.gz",
+      "dnase": "gs://encode-pipeline-genome-data/mm10/ataqc/mm10_univ_dhs_ucsc.bed.gz"
+    },
+    "atac.macs2.sig_pval": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-7ab0340dfeb10ca109917cbdcc568548/ENCFF442YHM.trim.merged.nodup.tn5.pval.signal.bigwig"],
+    "atac.macs2_pr2.sig_fc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2_pr2/shard-0/glob-37a6259cc0c1dae299a7866489dff0bd/null"],
+    "atac.macs2.frip_qc": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-macs2/shard-0/glob-156b027b56a0fc9230201b265d9f4bf4/ENCFF442YHM.trim.merged.nodup.tn5.pval0.01.300K.bfilt.frip.qc"],
+    "atac.bowtie2.read_len_log": ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/call-bowtie2/shard-0/glob-773fb92850749a2b4a829cf3c8c4de27/ENCFF379WRX.trim.merged.read_length.txt"]
+  },
+  "workflowRoot": "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/execution/atac/faded33d-f0ab-44a4-a00f-42547522a938/",
+  "actualWorkflowLanguage": "WDL",
+  "id": "faded33d-f0ab-44a4-a00f-42547522a938",
+  "inputs": {
+    "atac.adapters_rep6_R2": [],
+    "atac.bowtie2.time_hr": null,
+    "atac.macs2_time_hr": null,
+    "atac.peak_pooled": null,
+    "atac.peaks_pr2": [],
+    "atac.fastqs_rep2_R2": [],
+    "atac.bam2ta.subsample": null,
+    "atac.trim_adapter.err_rate": null,
+    "atac.adapters_rep2_R2": [],
+    "atac.xcor.time_hr": null,
+    "atac.pipeline_type": "atac",
+    "atac.filter.mapq_thresh": null,
+    "atac.align_only": false,
+    "atac.fastqs_rep1_R1": [],
+    "atac.bam2ta.regex_grep_v_ta": null,
+    "atac.ataqc.disks": null,
+    "atac.bowtie2.disks": null,
+    "atac.trim_adapter.disks": null,
+    "atac.macs2_mem_mb": 16000,
+    "atac.adapters": [],
+    "atac.filter.dup_marker": null,
+    "atac.bowtie2.score_min": null,
+    "atac.fastqs_rep6_R1": [],
+    "atac.adapters_rep5_R2": [],
+    "atac.ataqc.time_hr": null,
+    "atac.adapters_rep1_R1": [],
+    "atac.adapters_rep5_R1": [],
+    "atac.adapters_rep3_R1": [],
+    "atac.qc_report.qc_json_ref": null,
+    "atac.idr_thresh": 0.05,
+    "atac.adapters_rep1_R2": [],
+    "atac.trim_adapter.cpu": 2,
+    "atac.filter.no_dup_removal": null,
+    "atac.peak_ppr2": null,
+    "atac.bowtie2.mem_mb": 16000,
+    "atac.true_rep_only": false,
+    "atac.bams": [],
+    "atac.macs2_pr2.make_signal": null,
+    "atac.peak_type": "narrowPeak",
+    "atac.fastqs_rep2_R1": [],
+    "atac.fastqs_rep3_R1": [],
+    "atac.spr.mem_mb": null,
+    "atac.filter.disks": null,
+    "atac.filter.time_hr": null,
+    "atac.fastqs_rep6_R2": [],
+    "atac.trim_adapter.time_hr": null,
+    "atac.macs2_ppr1.make_signal": null,
+    "atac.adapters_rep3_R2": [],
+    "atac.xcor.disks": null,
+    "atac.trim_adapter.mem_mb": null,
+    "atac.macs2_pr1.make_signal": null,
+    "atac.bam2ta.mem_mb": null,
+    "atac.ataqc.mem_mb": null,
+    "atac.fastqs_rep5_R2": [],
+    "atac.macs2_ppr2.make_signal": null,
+    "atac.adapters_rep4_R1": [],
+    "atac.trim_adapter.auto_detect_adapter": true,
+    "atac.macs2_disks": null,
+    "atac.adapters_rep2_R1": [],
+    "atac.fastqs_rep4_R2": [],
+    "atac.peaks": [],
+    "atac.fastqs_rep4_R1": [],
+    "atac.tas": [],
+    "atac.qc_report.desc": "ATAC-seq on Mus musculus hat-challange",
+    "atac.xcor.mem_mb": null,
+    "atac.disable_xcor": false,
+    "atac.bam2ta.time_hr": null,
+    "atac.qc_report.name": "ENCSR993QKC",
+    "atac.trim_adapter.min_trim_len": null,
+    "atac.pval_thresh": 0.01,
+    "atac.xcor.subsample": null,
+    "atac.peaks_pr1": [],
+    "atac.bam2ta.disks": null,
+    "atac.fastqs_rep1_R2": [],
+    "atac.adapters_rep6_R1": [],
+    "atac.nodup_bams": [],
+    "atac.bam2ta.cpu": null,
+    "atac.cap_num_peak": 300000,
+    "atac.xcor.cpu": null,
+    "atac.disable_ataqc": false,
+    "atac.adapters_rep4_R2": [],
+    "atac.idr_rank": "p.value",
+    "atac.multimapping": 4,
+    "atac.fastqs_rep5_R1": [],
+    "atac.fastqs": [[["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_1/ENCFF442YHM.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB333KTT/read_2/ENCFF379WRX.fastq.gz"], ["gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_1/ENCFF177WUQ.fastq.gz", "gs://pipeline_challenge_bucket/ATAC/ENCSR993QKC/replicate_1_1/ENCLB567UUL/read_2/ENCFF688QCB.fastq.gz"]]],
+    "atac.filter.mem_mb": 12000,
+    "atac.fastqs_rep3_R2": [],
+    "atac.genome_tsv": "gs://encode-pipeline-genome-data/mm10_google.tsv",
+    "atac.paired_end": true,
+    "atac.peak_ppr1": null,
+    "atac.bowtie2.cpu": 4,
+    "atac.enable_idr": true,
+    "atac.filter.cpu": 2,
+    "atac.smooth_win": 73
+  },
+  "labels": {
+    "cromwell-workflow-id": "cromwell-faded33d-f0ab-44a4-a00f-42547522a938"
+  },
+  "submission": "2018-07-19T20:51:41.868Z",
+  "status": "Succeeded",
+  "end": "2018-07-20T06:45:32.076Z",
+  "start": "2018-07-19T20:51:42.166Z"
